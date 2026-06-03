@@ -350,3 +350,109 @@ input:focus, select:focus {
         background: transparent !important;
     }
 }
+
+/* --- STILI SPECIFICI PER LA PAGINA PRESTITI (TABELLA A 6 COLONNE) --- */
+.border-red {
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #e74c3c; /* Filetto rosso per la sezione prestiti */
+}
+
+/* Tabella Prestiti */
+.loans-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.loans-table th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 8.5pt;
+    font-weight: 800;
+    padding: 12px 8px;
+    text-align: center; /* Titoli colonne perfettamente centrati */
+    border-bottom: 2px solid #e2e8f0;
+    letter-spacing: 0.5px;
+}
+
+.loans-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+/* Elementi interni alla tabella */
+.beneficiary-select {
+    width: 130px !important;
+    font-size: 9.5pt !important;
+    padding: 6px 8px !important;
+}
+
+.table-text-input {
+    width: 100%;
+    font-size: 9.5pt !important;
+    padding: 6px 8px !important;
+}
+
+/* Contenitore € specifico per le celle della tabella */
+.table-amount-wrapper {
+    position: relative;
+    width: 105px;
+    margin: 0 auto; /* Centra il campo nella colonna */
+}
+
+.table-amount-wrapper::before {
+    content: "€";
+    position: absolute;
+    left: 8px;
+    font-weight: bold;
+    color: #64748b;
+    font-size: 9pt;
+}
+
+.loan-amount-input {
+    width: 100% !important;
+    text-align: right;
+    padding: 6px 6px 6px 20px !important; /* Spazio per la € */
+    font-size: 9.5pt !important;
+    font-weight: 600;
+}
+
+/* Stile per la colonna Rimanenza (Readonly) */
+.readonly-wrapper::before {
+    color: #e74c3c; /* Simbolo € rosso per i debiti/rimanenze */
+}
+
+.balance-output {
+    background-color: #fef2f2 !important; /* Sfondino rosso chiaro */
+    border-color: #fecaca !important;
+    color: #b91c1c !important;
+    cursor: not-allowed;
+}
+
+/* Contatore di Pagina parziale */
+.page-counter-box {
+    padding: 15px 10px 5px 10px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.margin-top-20 {
+    margin-top: 20px;
+}
+
+.page-counter-label {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.page-counter-value {
+    font-size: 14pt;
+    font-weight: 800;
+    color: #e74c3c;
+    margin-left: 5px;
+}

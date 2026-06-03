@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Entrate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="top-control-bar">
+            <div class="control-group">
+                <label for="global-date">DATA INSERIMENTO</label>
+                <input type="date" id="global-date">
+            </div>
+            
+            <div class="action-buttons">
+                <button type="button" id="save-btn" class="btn-blue">💾 Salva</button>
+                <button type="button" id="print-btn" class="btn-dark">🖨️ Stampa</button>
+            </div>
+            
+            <div class="global-counter-box">
+                <span class="counter-label">TOTALE GIORNALIERO</span>
+                <span id="daily-total" class="counter-value">€ 0.00</span>
+            </div>
+        </div>
+
+        <h1>Gestione Entrate</h1>
+
+        <form id="entrate-form">
+            
+            <div class="card-section">
+                <h2>Entrate Generali</h2>
+                
+                <div class="row-input">
+                    <span class="row-label">NASPI</span>
+                    <select class="user-select">
+                        <option value="Luigi">Luigi</option>
+                        <option value="Tiziana">Tiziana</option>
+                    </select>
+                    <select class="period-select">
+                        <option value="Gennaio">Gennaio</option>
+                        <option value="Febbraio">Febbraio</option>
+                        <option value="Marzo">Marzo</option>
+                        <option value="Aprile">Aprile</option>
+                        <option value="Maggio">Maggio</option>
+                        <option value="Giugno">Giugno</option>
+                        <option value="Luglio">Luglio</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Settembre">Settembre</option>
+                        <option value="Ottobre">Ottobre</option>
+                        <option value="Novembre">Novembre</option>
+                        <option value="Dicembre">Dicembre</option>
+                        <option value="Tredicesima">Tredicesima</option>
+                        <option value="Quattordicesima">Quattordicesima</option>
+                        <option value="TFR Completo">TFR (Completo)</option>
+                        <option value="TFR Anticipo">TFR (Anticipo)</option>
+                    </select>
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+
+                <div class="row-input">
+                    <span class="row-label">PENSIONE</span>
+                    <select class="user-select">
+                        <option value="Luigi">Luigi</option>
+                        <option value="Tiziana">Tiziana</option>
+                    </select>
+                    <select class="period-select">
+                        <option value="Gennaio">Gennaio</option>
+                        <option value="Febbraio">Febbraio</option>
+                        <option value="Marzo">Marzo</option>
+                        <option value="Aprile">Aprile</option>
+                        <option value="Maggio">Maggio</option>
+                        <option value="Giugno">Giugno</option>
+                        <option value="Luglio">Luglio</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Settembre">Settembre</option>
+                        <option value="Ottobre">Ottobre</option>
+                        <option value="Novembre">Novembre</option>
+                        <option value="Dicembre">Dicembre</option>
+                        <option value="Tredicesima">Tredicesima</option>
+                        <option value="Quattordicesima">Quattordicesima</option>
+                        <option value="TFR Completo">TFR (Completo)</option>
+                        <option value="TFR Anticipo">TFR (Anticipo)</option>
+                    </select>
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+
+                <div class="row-input">
+                    <span class="row-label">STIPENDIO</span>
+                    <select class="user-select">
+                        <option value="Luigi">Luigi</option>
+                        <option value="Tiziana">Tiziana</option>
+                    </select>
+                    <select class="period-select">
+                        <option value="Gennaio">Gennaio</option>
+                        <option value="Febbraio">Febbraio</option>
+                        <option value="Marzo">Marzo</option>
+                        <option value="Aprile">Aprile</option>
+                        <option value="Maggio">Maggio</option>
+                        <option value="Giugno">Giugno</option>
+                        <option value="Luglio">Luglio</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Settembre">Settembre</option>
+                        <option value="Ottobre">Ottobre</option>
+                        <option value="Novembre">Novembre</option>
+                        <option value="Dicembre">Dicembre</option>
+                        <option value="Tredicesima">Tredicesima</option>
+                        <option value="Quattordicesima">Quattordicesima</option>
+                        <option value="TFR Completo">TFR (Completo)</option>
+                        <option value="TFR Anticipo">TFR (Anticipo)</option>
+                    </select>
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+            </div>
+
+            <div class="card-section">
+                <h2>Vendita Giornalini</h2>
+                <div class="row-input single-row">
+                    <input type="text" placeholder="Venduto a... (Nome cliente, acquirente)" class="details-input">
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+            </div>
+
+            <div class="card-section">
+                <h2>Entrate Occasionali</h2>
+                
+                <div class="row-input occasional-row">
+                    <select class="platform-select">
+                        <option value="Subito.it">Subito.it</option>
+                        <option value="Vinted">Vinted</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                    <input type="text" placeholder="Dettagli vendita..." class="details-input">
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+
+                <div class="row-input occasional-row">
+                    <select class="platform-select">
+                        <option value="Subito.it">Subito.it</option>
+                        <option value="Vinted">Vinted</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                    <input type="text" placeholder="Dettagli vendita..." class="details-input">
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+
+                <div class="row-input occasional-row">
+                    <select class="platform-select">
+                        <option value="Subito.it">Subito.it</option>
+                        <option value="Vinted">Vinted</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                    <input type="text" placeholder="Dettagli vendita..." class="details-input">
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+
+                <div class="row-input occasional-row">
+                    <select class="platform-select">
+                        <option value="Subito.it">Subito.it</option>
+                        <option value="Vinted">Vinted</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                    <input type="text" placeholder="Dettagli vendita..." class="details-input">
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+
+                <div class="row-input occasional-row">
+                    <select class="platform-select">
+                        <option value="Subito.it">Subito.it</option>
+                        <option value="Vinted">Vinted</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                    <input type="text" placeholder="Dettagli vendita..." class="details-input">
+                    <input type="number" step="0.01" placeholder="0.00" class="amount-input" title="€">
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

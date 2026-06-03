@@ -3,61 +3,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const dailyTotalEl = document.getElementById('daily-total');
     const saveBtn = document.getElementById('save-btn');
     const printBtn = document.getElementById('print-btn');
-    const amountInputs = document.querySelectorAll('.amount-input');
+    const form = document.getElementById('entrate-form');
 
-    // 1. IMPOSTA LA DATA CORRENTE ALL'AVVIO
+    // 1. IMPOSTA LA DATA DI OGGI IN AUTOMATICO
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
 
-    // 2. FUNZIONE PER CALCOLARE IL TOTALE IN TEMPO REALE
+    // 2. CALCOLO DEL TOTALE GIORNALIERO IN TEMPO REALE
     function calculateDailyTotal() {
         let total = 0;
+        // Seleziona tutti gli input numerici delle entrate presenti nella pagina
+        const amountInputs = document.querySelectorAll('.amount-input');
+        
         amountInputs.forEach(input => {
             const value = parseFloat(input.value);
             if (!isNaN(value)) {
                 total += value;
             }
         });
-        // Aggiorna il testo in alto formattandolo come valuta (€)
+        
+        // Aggiorna il contatore in alto a destra con la formattazione corretta
         dailyTotalEl.textContent = `€ ${total.toFixed(2)}`;
     }
 
-    // Ascolta i cambiamenti su tutti i campi di input dell'importo
-    amountInputs.forEach(input => {
-        input.addEventListener('input', calculateDailyTotal);
+    // Rimani in ascolto su tutta la pagina: appena digiti un numero, il totale si aggiorna
+    form.addEventListener('input', (e) => {
+        if (e.target.classList.contains('amount-input')) {
+            calculateDailyTotal();
+        }
     });
 
-    // 3. FUNZIONE PER RECUPERARE E COMPILARE I DATI SALVATI QUANDO CAMBIA LA DATA
+    // 3. CARICAMENTO DEI DATI SALVATI QUANDO SI CAMBIA DATA
     function loadSavedData() {
         const selectedDate = dateInput.value;
         if (!selectedDate) return;
 
-        // Puliamo prima tutti i campi
-        document.getElementById('entrate-form').reset();
+        // Svuota tutti i campi del modulo per la nuova compilazione
+        form.reset();
         
-        // Cerchiamo se ci sono dati salvati per questa data nel localStorage
+        // Recupera i dati associati a questa specifica data
         const savedData = localStorage.getItem(`entrate_${selectedDate}`);
         
         if (savedData) {
             const data = JSON.parse(savedData);
             
-            // Ripristiniamo i valori dei campi usando un indice sequenziale
-            const allInputsAndSelects = document.querySelectorAll('#entrate-form input, #entrate-form select');
-            allInputsAndSelects.forEach((element, index) => {
+            // Seleziona tutti gli input e select nello stesso identico ordine dell'HTML
+            const allElements = form.querySelectorAll('input, select');
+            allElements.forEach((element, index) => {
                 if (data[index] !== undefined) {
                     element.value = data[index];
                 }
             });
         }
         
-        // Ricalcoliamo il totale per la data selezionata
+        // Ricalcola il totale per la data caricata
         calculateDailyTotal();
     }
 
-    // Ricarica i dati se l'utente cambia la data nel calendario
+    // Ascolta quando l'utente cambia la data dal datario in alto
     dateInput.addEventListener('change', loadSavedData);
 
-    // 4. GESTIONE DEL SALVATAGGIO (TASTO SALVA)
+    // 4. FUNZIONE DI SALVATAGGIO (TASTO SALVA)
     saveBtn.addEventListener('click', () => {
         const selectedDate = dateInput.value;
         if (!selectedDate) {
@@ -65,25 +71,45 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Creiamo un array con lo stato di tutti i campi del modulo
         const dataToSave = [];
-        const allInputsAndSelects = document.querySelectorAll('#entrate-form input, #entrate-form select');
+        const allElements = form.querySelectorAll('input, select');
         
-        allInputsAndSelects.forEach(element => {
+        // Salva il valore di ogni singola casella di testo o menu a tendina
+        allElements.forEach(element => {
             dataToSave.push(element.value);
         });
 
-        // Salviamo nel localStorage associandolo alla data specifica
+        // Archivia nel localStorage del browser
         localStorage.setItem(`entrate_${selectedDate}`, JSON.stringify(dataToSave));
         
-        alert(`Dati del giorno ${selectedDate.split('-').reverse().join('/')} salvati con successo!`);
+        // Mostra un avviso pulito con la data in formato italiano (GG/MM/AAAA)
+        const dateIT = selectedDate.split('-').reverse().join('/');
+        alert(`Dati del giorno ${dateIT} salvati correttamente!`);
     });
 
-    // 5. GESTIONE DELLA STAMPA (TASTO STAMPA)
+    // 5. FUNZIONE DI STAMPA (TASTO STAMPA)
     printBtn.addEventListener('click', () => {
         window.print();
     });
 
-    // Esegui un primo controllo al caricamento se ci fossero già dati
+    // 6. GESTIONE ESTETICA DEL MENU LATERALE (Per simulare il clic sulle voci)
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            // Per ora blocchiamo il salto link visto che lavoriamo sulla prima pagina
+            e.preventDefault(); 
+            
+            // Rimuove la classe attiva da tutti e la assegna a quello cliccato
+            menuItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Opzionale: un piccolo avviso temporaneo per le pagine in costruzione
+            if (!item.textContent.includes("Entrate Generali")) {
+                alert(`La pagina "${item.textContent.trim().substring(2)}" è in arrivo! Per ora concentriamoci sulle Entrate Generali.`);
+            }
+        });
+    });
+
+    // Esegui il caricamento iniziale (se ci sono già dati salvati per oggi)
     loadSavedData();
 });

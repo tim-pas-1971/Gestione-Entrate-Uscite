@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -9,18 +8,16 @@ HTML
 </head>
 <body>
 
-    <!-- INTERFACCIA A DUE COLONNE -->
     <div class="app-layout">
         
-        <!-- SIDEBAR: MENU LATERALE SINISTRO -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>Gestione Casa</h2>
-                <p>GESTIONE ENTRATE</p>
+                <p>PAGINE APPLICAZIONE</p>
             </div>
             <nav class="sidebar-menu">
-                <a href="#" class="menu-item active" style="--item-color: #27ae60;">🟢 Entrate Generali</a>
-                <a href="#" class="menu-item" style="--item-color: #e74c3c;">🤝 Prestiti (Familiari / Amici)</a>
+                <a href="#" class="menu-item" id="menu-entrate" style="--item-color: #27ae60;">🟢 Entrate Generali</a>
+                <a href="#" class="menu-item active" id="menu-prestiti" style="--item-color: #e74c3c;">🤝 Prestiti (Familiari / Amici)</a>
                 <a href="#" class="menu-item" style="--item-color: #9b59b6;">🏦 Prest. / Finanz. (Istituti) - Pers.</a>
                 <a href="#" class="menu-item" style="--item-color: #34495e;">🏢 Prest. / Finanz. (Istituti) - Terzi</a>
                 <a href="#" class="menu-item" style="--item-color: #f1c40f;">📊 Riepilogo entrate annuali</a>
@@ -29,10 +26,8 @@ HTML
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT: AREA DI LAVORO DESTRA -->
         <main class="main-content">
             
-            <!-- BARRA COMANDI SUPERIORE -->
             <div class="top-control-bar">
                 <div class="control-group">
                     <label for="global-date">DATA INSERIMENTO</label>
@@ -50,18 +45,12 @@ HTML
                 </div>
             </div>
 
-            <!-- CONTENUTO DELLA PAGINA CORRENTE -->
-            <div class="page-body">
+            <div id="page-entrate" class="page-body" style="display: none;">
                 <h1 class="page-title">Entrate Generali</h1>
-
                 <form id="entrate-form">
-                    
-                    <!-- SEZIONE: NASPI / PENSIONE / STIPENDIO -->
                     <div class="card-section border-green">
                         <h3 class="section-subtitle color-green">NASPI / PENSIONE / STIPENDIO</h3>
-                        
                         <div class="grid-inputs">
-                            <!-- NASPI - Inserimento 1 -->
                             <div class="input-block">
                                 <span class="block-label">NASPI (Ingresso 1)</span>
                                 <select class="user-select"><option value="Luigi">Luigi</option><option value="Tiziana">Tiziana</option></select>
@@ -70,118 +59,187 @@ HTML
                                 </select>
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
-
-                            <!-- NASPI - Inserimento 2 -->
                             <div class="input-block">
                                 <span class="block-label">NASPI (Ingresso 2)</span>
                                 <select class="user-select"><option value="Luigi">Luigi</option><option value="Tiziana">Tiziana</option></select>
-                                <select class="period-select">
-                                    <option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option>
-                                </select>
+                                <select class="period-select"><option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option></select>
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
-
-                            <!-- PENSIONE - Inserimento 1 -->
                             <div class="input-block">
                                 <span class="block-label">PENSIONE (Ingresso 1)</span>
                                 <select class="user-select"><option value="Luigi">Luigi</option><option value="Tiziana">Tiziana</option></select>
-                                <select class="period-select">
-                                    <option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option>
-                                </select>
+                                <select class="period-select"><option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option></select>
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
-
-                            <!-- PENSIONE - Inserimento 2 -->
                             <div class="input-block">
                                 <span class="block-label">PENSIONE (Ingresso 2)</span>
                                 <select class="user-select"><option value="Luigi">Luigi</option><option value="Tiziana">Tiziana</option></select>
-                                <select class="period-select">
-                                    <option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option>
-                                </select>
+                                <select class="period-select"><option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option></select>
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
-
-                            <!-- STIPENDIO - Inserimento 1 -->
                             <div class="input-block">
                                 <span class="block-label">STIPENDIO (Ingresso 1)</span>
                                 <select class="user-select"><option value="Luigi">Luigi</option><option value="Tiziana">Tiziana</option></select>
-                                <select class="period-select">
-                                    <option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option>
-                                </select>
+                                <select class="period-select"><option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option></select>
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
-
-                            <!-- STIPENDIO - Inserimento 2 -->
                             <div class="input-block">
                                 <span class="block-label">STIPENDIO (Ingresso 2)</span>
                                 <select class="user-select"><option value="Luigi">Luigi</option><option value="Tiziana">Tiziana</option></select>
-                                <select class="period-select">
-                                    <option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option>
-                                </select>
+                                <select class="period-select"><option value="Gennaio">Gennaio</option><option value="Febbraio">Febbraio</option><option value="Marzo">Marzo</option><option value="Aprile">Aprile</option><option value="Maggio">Maggio</option><option value="Giugno">Giugno</option><option value="Luglio">Luglio</option><option value="Agosto">Agosto</option><option value="Settembre">Settembre</option><option value="Ottobre">Ottobre</option><option value="Novembre">Novembre</option><option value="Dicembre">Dicembre</option><option value="Tredicesima">Tredicesima</option><option value="Quattordicesima">Quattordicesima</option><option value="TFR Completo">TFR (Completo)</option><option value="TFR Anticipo">TFR (Anticipo)</option></select>
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- SEZIONI BASSE AFFIANCATE (Giornalini e Varie) -->
                     <div class="double-columns">
-                        <!-- VENDITA GIORNALINI -->
                         <div class="card-section border-green">
                             <h3 class="section-subtitle color-green">VENDITA GIORNALINI</h3>
                             <div class="single-row-layout">
-                                <input type="text" placeholder="Venduto a... (Acquirente)" class="details-input">
+                                <input type="text" placeholder="Venduto a..." class="details-input">
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
                         </div>
-
-                        <!-- VARIE (TESTO LIBERO) -->
                         <div class="card-section border-green">
                             <h3 class="section-subtitle color-green">VARIE (TESTO LIBERO)</h3>
                             <div class="single-row-layout">
-                                <input type="text" placeholder="Descrizione entrata..." class="details-input">
+                                <input type="text" placeholder="Descrizione..." class="details-input">
                                 <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- SEZIONE: OCCASIONALI (5 Righe ordinate) -->
                     <div class="card-section border-green">
                         <h3 class="section-subtitle color-green">ENTRATE OCCASIONALI</h3>
                         <div class="occasional-list">
-                            <!-- Riga 1 -->
-                            <div class="occasional-row">
-                                <select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
-                                <input type="text" placeholder="Dettagli vendita..." class="details-input">
-                                <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
-                            </div>
-                            <!-- Riga 2 -->
-                            <div class="occasional-row">
-                                <select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
-                                <input type="text" placeholder="Dettagli vendita..." class="details-input">
-                                <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
-                            </div>
-                            <!-- Riga 3 -->
-                            <div class="occasional-row">
-                                <select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
-                                <input type="text" placeholder="Dettagli vendita..." class="details-input">
-                                <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
-                            </div>
-                            <!-- Riga 4 -->
-                            <div class="occasional-row">
-                                <select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
-                                <input type="text" placeholder="Dettagli vendita..." class="details-input">
-                                <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
-                            </div>
-                            <!-- Riga 5 -->
-                            <div class="occasional-row">
-                                <select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
-                                <input type="text" placeholder="Dettagli vendita..." class="details-input">
-                                <div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div>
-                            </div>
+                            <div class="occasional-row"><select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select><input type="text" placeholder="Dettagli..." class="details-input"><div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div></div>
+                            <div class="occasional-row"><select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select><input type="text" placeholder="Dettagli..." class="details-input"><div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div></div>
+                            <div class="occasional-row"><select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select><input type="text" placeholder="Dettagli..." class="details-input"><div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div></div>
+                            <div class="occasional-row"><select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select><input type="text" placeholder="Dettagli..." class="details-input"><div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div></div>
+                            <div class="occasional-row"><select class="platform-select"><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select><input type="text" placeholder="Dettagli..." class="details-input"><div class="amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="amount-input"></div></div>
                         </div>
                     </div>
-
                 </form>
+            </div>
+
+            <div id="page-prestiti" class="page-body">
+                <h1 class="page-title">Prestiti (Familiari / Amici)</h1>
+                
+                <div class="card-section border-red">
+                    <form id="prestiti-form">
+                        <table class="loans-table">
+                            <thead>
+                                <tr>
+                                    <th>BENEFICIARIO</th>
+                                    <th>NOTE</th>
+                                    <th>TOTALE DOVUTO</th>
+                                    <th>USCITE</th>
+                                    <th>ENTRATE</th>
+                                    <th>RIMANENZA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <script>
+                                    // Questo script è solo descrittivo, nell'HTML reale inseriamo i tag espliciti per sicurezza
+                                </script>
+                                
+                                <tr>
+                                    <td>
+                                        <select class="beneficiary-select">
+                                            <option value=""></option> <option value="Mamma">Mamma</option>
+                                            <option value="Anna / Giò">Anna / Giò</option>
+                                            <option value="Roberto">Roberto</option>
+                                            <option value="Teresa">Teresa</option>
+                                            <option value="Altro">Altro</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                <tr>
+                                    <td><select class="beneficiary-select"><option value=""></option><option value="Mamma">Mamma</option><option value="Anna / Giò">Anna / Giò</option><option value="Roberto">Roberto</option><option value="Teresa">Teresa</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="table-text-input" placeholder="Aggiungi nota..."></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input"></div></td>
+                                    <td><div class="table-amount-wrapper readonly-wrapper"><input type="number" step="0.01" placeholder="0.00" class="loan-amount-input balance-output" readonly></div></td>
+                                </tr>
+                                </tbody>
+                        </table>
+                    </form>
+                    
+                    <div class="page-counter-box text-right margin-top-20">
+                        <span class="page-counter-label">Totale di questa pagina: </span>
+                        <span id="page-loans-total" class="page-counter-value">€ 0.00</span>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

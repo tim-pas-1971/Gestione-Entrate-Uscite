@@ -512,3 +512,17 @@ input:focus, select:focus {
     font-style: italic !important;
     color: #047857 !important;
 }
+
+/* Stile specifico per il box totale nella pagina Prestiti */
+#page-prestiti .page-counter-box-top {
+    border-right: 5px solid #e74c3c; /* Bordo rosso specifico */
+    background-color: #fef2f2;       /* Sfondo leggermente rosato */
+}
+
+/* Colore specifico per la cifra del totale pagina Prestiti */
+#page-loans-total {
+    font-size: 14pt !important;
+    font-weight: normal !important;
+    font-style: italic !important;
+    color: #b91c1c !important; /* Rosso intenso */
+}

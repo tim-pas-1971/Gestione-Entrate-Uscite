@@ -498,17 +498,17 @@ input:focus, select:focus {
     color: #475569;
 }
 
-/* 1. Il Totale GIORNATA rimane grande e in evidenza (quello in alto a destra) */
+/* 1. Il Totale GIORNATA (quello in alto a destra) */
 .page-counter-value-green {
-    font-size: 20pt; 
-    font-weight: 800;
-    color: #047857;
+    font-size: 20pt !important; 
+    font-weight: 800 !important;
+    color: #047857 !important;
 }
 
-/* 2. Il Totale PAGINA diventa più piccolo, corsivo e senza neretto */
+/* 2. Il Totale PAGINA (quello corsivo) */
 #page-entrate-total {
-    font-size: 14pt;      /* Più piccolo rispetto ai 20pt di prima */
-    font-weight: normal;  /* Niente grassetto */
-    font-style: italic;   /* Corsivo per differenziarlo */
-    color: #047857;       
+    font-size: 14pt !important;
+    font-weight: normal !important;
+    font-style: italic !important;
+    color: #047857 !important;
 }

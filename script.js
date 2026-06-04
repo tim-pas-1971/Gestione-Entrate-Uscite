@@ -8,12 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const riga = document.getElementById(id);
         if (!riga) return;
         
-        // Crea tendina
         const select = document.createElement('select');
         select.className = 'period-select';
         mesi.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
         
-        // Crea input importo
         const div = document.createElement('div');
         div.className = 'amount-wrapper';
         div.innerHTML = '<input type="number" step="0.01" class="amount-input" placeholder="0.00">';
@@ -26,104 +24,60 @@ document.addEventListener('DOMContentLoaded', () => {
                    'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
     righe.forEach(aggiungiElementi);
 
-    // 2. FORMATO IMPORTO (Massimo 8 cifre totali)
+    // 2. FUNZIONE CENTRALE PER I CALCOLI (Questa è quella che cercavi!)
+    function calculateTotals() {
+        let entratePageTotal = 0;
+        
+        // Calcola totale Entrate (cerca tutti gli input con classe amount-input)
+        const allInputs = document.querySelectorAll('.amount-input');
+        allInputs.forEach(input => {
+            const value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                entratePageTotal += value;
+            }
+        });
+
+        // Aggiorna totale di pagina (se esiste l'elemento)
+        const pageTotalEl = document.getElementById('page-entrate-total');
+        if (pageTotalEl) {
+            pageTotalEl.textContent = `€ ${entratePageTotal.toFixed(2)}`;
+        }
+
+        // Aggiorna totale globale (in alto)
+        const dailyTotalEl = document.getElementById('daily-total');
+        if (dailyTotalEl) {
+            dailyTotalEl.textContent = `€ ${entratePageTotal.toFixed(2)}`;
+        }
+    }
+
+    // Ascolta ogni variazione negli input per aggiornare i totali
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('amount-input')) {
-            let val = e.target.value;
-            if (val.length > 8) e.target.value = val.slice(0, 8);
+            calculateTotals();
         }
     });
-    
-    // ELEMENTI DI NAVIGAZIONE (MENU LATERALE)
+
+    // 3. NAVIGAZIONE PAGINE (Logica già esistente)
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
-    
-    // PAGINE (CONTENITORI)
     const pageEntrate = document.getElementById('page-entrate');
     const pagePrestiti = document.getElementById('page-prestiti');
 
-    // CONTROLLI GLOBALI
-    const dateInput = document.getElementById('global-date');
-    const dailyTotalEl = document.getElementById('daily-total');
-    const saveBtn = document.getElementById('save-btn');
-    const printBtn = document.getElementById('print-btn');
-
-    // Imposta la data di oggi in automatico all'avvio
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-
-    // --- 1. GESTIONE DEL CAMBIO PAGINA (NAVIGAZIONE) ---
     function switchPage(pageToDisplay, menuActive) {
-        // Nascondi tutte le pagine
         pageEntrate.style.display = 'none';
         pagePrestiti.style.display = 'none';
-        
-        // Mostra solo la pagina selezionata
         pageToDisplay.style.display = 'block';
-        
-        // Gestisci la classe 'active' visiva sui pulsanti del menu
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         menuActive.classList.add('active');
     }
 
-    // Clicchi su Entrate
-    menuEntrate.addEventListener('click', (e) => {
-        e.preventDefault();
-        switchPage(pageEntrate, menuEntrate);
-    });
+    if(menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); switchPage(pageEntrate, menuEntrate); });
+    if(menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); switchPage(pagePrestiti, menuPrestiti); });
 
-    // Clicchi su Prestiti
-    menuPrestiti.addEventListener('click', (e) => {
-        e.preventDefault();
-        switchPage(pagePrestiti, menuPrestiti);
-    });
-
-    // Avviso temporaneo per le altre pagine ancora non create
+    // Avviso per le altre pagine
     document.querySelectorAll('.menu-item').forEach(item => {
         if (item.id !== 'menu-entrate' && item.id !== 'menu-prestiti') {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert(`La pagina "${item.textContent.trim().substring(2)}" è in costruzione!`);
-            });
+            item.addEventListener('click', (e) => { e.preventDefault(); alert('Pagina in costruzione!'); });
         }
     });
-
-    // --- 2. LOGICA DI CALCOLO TOTALI (PROVVISORIA PER GRAFICA) ---
-    function calculateGlobalTotal() {
-        let globalTotal = 0;
-        // Prende tutti gli input numerici sparsi nell'intera app
-        const allAmountInputs = document.querySelectorAll('.amount-input, .loan-amount-input');
-        
-        allAmountInputs.forEach(input => {
-            // Saltiamo la colonna RIMANENZA che è in sola lettura per non raddoppiare i calcoli
-            if (!input.readOnly) {
-                const value = parseFloat(input.value);
-                if (!isNaN(value)) {
-                    globalTotal += value;
-                }
-            }
-        });
-        
-        dailyTotalEl.textContent = `€ ${globalTotal.toFixed(2)}`;
-    }
-
-    // Ascolta gli inserimenti numerici in entrambi i moduli
-    document.addEventListener('input', (e) => {
-        if (e.target.classList.contains('amount-input') || e.target.classList.contains('loan-amount-input')) {
-            calculateGlobalTotal();
-        }
-    });
-
-    // Tasto Stampa
-    printBtn.addEventListener('click', () => {
-        window.print();
-    });
-
-    // Tasto Salva (Messaggio di base per ora)
-    saveBtn.addEventListener('click', () => {
-        alert('Salvataggio configurato per la struttura grafica attuale!');
-    });
-
-    // Di default, all'avvio, mostriamo la prima pagina (Entrate Generali)
-    switchPage(pageEntrate, menuEntrate);
 });

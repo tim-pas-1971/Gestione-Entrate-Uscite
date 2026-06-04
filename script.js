@@ -1,4 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. GENERAZIONE TENDINE AUTOMATICA
+    const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
+                  "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
+                  "BONUS / UNA TANTUM", "TFR", "BUONUSCITA"];
+
+    function aggiungiElementi(id) {
+        const riga = document.getElementById(id);
+        if (!riga) return;
+        
+        // Crea tendina
+        const select = document.createElement('select');
+        select.className = 'period-select';
+        mesi.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+        
+        // Crea input importo
+        const div = document.createElement('div');
+        div.className = 'amount-wrapper';
+        div.innerHTML = '<input type="number" step="0.01" class="amount-input" placeholder="0.00">';
+        
+        riga.appendChild(select);
+        riga.appendChild(div);
+    }
+
+    const righe = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
+                   'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
+    righe.forEach(aggiungiElementi);
+
+    // 2. FORMATO IMPORTO (Massimo 8 cifre totali)
+    document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('amount-input')) {
+            let val = e.target.value;
+            if (val.length > 8) e.target.value = val.slice(0, 8);
+        }
+    });
+    
     // ELEMENTI DI NAVIGAZIONE (MENU LATERALE)
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');

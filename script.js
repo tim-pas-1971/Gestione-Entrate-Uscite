@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. GENERAZIONE TENDINE AUTOMATICA
     const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
-                  "BONUS / UNA TANTUM", "TFR", "BUONUSCITA"];
+                  "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
 
     function aggiungiElementi(id) {
         const riga = document.getElementById(id);
@@ -24,48 +24,45 @@ document.addEventListener('DOMContentLoaded', () => {
                    'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
     righe.forEach(aggiungiElementi);
 
-    // 2. FUNZIONE CENTRALE PER I CALCOLI (Questa è quella che cercavi!)
-    function calculateTotals() {
-        let entratePageTotal = 0;
-        
-        // Calcola totale Entrate (cerca tutti gli input con classe amount-input)
-        const allInputs = document.querySelectorAll('.amount-input');
-        allInputs.forEach(input => {
-            const value = parseFloat(input.value);
-            if (!isNaN(value)) {
-                entratePageTotal += value;
-            }
+    // 2. FUNZIONE CENTRALE PER I CALCOLI (Aggiornata per entrambe le pagine)
+    function updateAllTotals() {
+        // Calcolo Entrate
+        let entrateTotal = 0;
+        document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
+            entrateTotal += parseFloat(input.value) || 0;
         });
+        const entrateEl = document.getElementById('page-entrate-total');
+        if (entrateEl) entrateEl.textContent = `€ ${entrateTotal.toFixed(2)}`;
 
-        // Aggiorna totale di pagina (se esiste l'elemento)
-        const pageTotalEl = document.getElementById('page-entrate-total');
-        if (pageTotalEl) {
-            pageTotalEl.textContent = `€ ${entratePageTotal.toFixed(2)}`;
-        }
+        // Calcolo Prestiti
+        let prestitiTotal = 0;
+        document.querySelectorAll('#page-prestiti .loan-amount-input').forEach(input => {
+            prestitiTotal += parseFloat(input.value) || 0;
+        });
+        const loansEl = document.getElementById('page-loans-total');
+        if (loansEl) loansEl.textContent = `€ ${prestitiTotal.toFixed(2)}`;
 
-        // Aggiorna totale globale (in alto)
+        // Totale Globale
+        const dailyTotal = entrateTotal + prestitiTotal;
         const dailyTotalEl = document.getElementById('daily-total');
-        if (dailyTotalEl) {
-            dailyTotalEl.textContent = `€ ${entratePageTotal.toFixed(2)}`;
-        }
+        if (dailyTotalEl) dailyTotalEl.textContent = `€ ${dailyTotal.toFixed(2)}`;
     }
 
-    // Ascolta ogni variazione negli input per aggiornare i totali
+    // Ascolta ogni input (sia entrate che prestiti)
     document.addEventListener('input', (e) => {
-        if (e.target.classList.contains('amount-input')) {
-            calculateTotals();
+        if (e.target.classList.contains('amount-input') || e.target.classList.contains('loan-amount-input')) {
+            updateAllTotals();
         }
     });
 
-    // 3. NAVIGAZIONE PAGINE (Logica già esistente)
+    // 3. NAVIGAZIONE PAGINE
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const pageEntrate = document.getElementById('page-entrate');
     const pagePrestiti = document.getElementById('page-prestiti');
 
     function switchPage(pageToDisplay, menuActive) {
-        pageEntrate.style.display = 'none';
-        pagePrestiti.style.display = 'none';
+        document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
         pageToDisplay.style.display = 'block';
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         menuActive.classList.add('active');

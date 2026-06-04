@@ -477,3 +477,29 @@ input:focus, select:focus {
 .amount-wrapper { position: relative; }
 .amount-wrapper::before { content: "€"; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #666; }
 .amount-input { padding-left: 25px; }
+
+/* Posizionamento a destra, font più grande e colore d'impatto */
+.page-counter-box-top {
+    background-color: #f8fafc; /* Sfondo leggermente grigio per staccare */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #e2e8f0;
+    border-right: 5px solid #16a34a; /* Filetto verde a destra */
+    display: flex;
+    justify-content: flex-end; /* Sposta tutto il contenuto a destra */
+    align-items: center;
+    gap: 15px; /* Spazio tra etichetta e cifra */
+}
+
+.page-counter-label {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #475569;
+}
+
+.page-counter-value-green {
+    font-size: 20pt; /* Cifra più grande */
+    font-weight: 800;
+    color: #16a34a; /* Verde intenso per risaltare */
+}

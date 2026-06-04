@@ -456,3 +456,12 @@ input:focus, select:focus {
     color: #e74c3c;
     margin-left: 5px;
 }
+.input-block-stipendio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.input-block-stipendio .block-label { width: 180px; }
+.note-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.input-block { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }

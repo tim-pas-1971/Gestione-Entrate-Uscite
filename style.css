@@ -15,24 +15,33 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 
 /* --- MAIN CONTENT & BARRA SUPERIORE --- */
 .main-content { margin-left: 280px; flex: 1; padding-top: 85px; min-height: 100vh; }
-.top-control-bar { position: fixed; top: 0; right: 0; left: 280px; height: 85px; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; }
-
-/* --- BOTTONI E DATA (Migliorati) --- */
-.control-group label { font-size: 7.5pt; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 4px; }
-.control-group input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; }
-.action-buttons { display: flex; gap: 10px; }
-.action-buttons button { padding: 10px 18px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-.btn-primary { background-color: #2563eb; color: white; }
-.btn-secondary { background-color: #64748b; color: white; }
-.counter-label { font-size: 7.5pt; font-weight: 800; color: #94a3b8; display: block; text-align: right; }
-.counter-value { font-size: 20pt; font-weight: 800; color: #1e293b; margin-left: 15px; }
+.top-control-bar { position: fixed; top: 0; right: 0; left: 280px; height: 75px; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; }
+.counter-value { font-size: 20pt; font-weight: 800; color: #1e293b; }
 
 /* --- COMPONENTE BOX TOTALE UNIFICATO --- */
-.page-counter-box-top { display: flex; justify-content: flex-end; align-items: center; background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #16a34a; gap: 15px; }
+.page-counter-box-top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #e2e8f0;
+    border-right: 5px solid #16a34a; /* Verde di default */
+    gap: 15px;
+}
+
 .page-counter-label { font-size: 12pt; font-weight: 600; color: #475569; }
 
-/* Stile per i totali di pagina (corsivo) */
-#page-entrate-total, #page-loans-total { font-size: 14pt !important; font-weight: normal !important; font-style: italic !important; }
+/* Stile per i totali di pagina (font corsivo) */
+#page-entrate-total, #page-loans-total {
+    font-size: 14pt !important;
+    font-weight: normal !important;
+    font-style: italic !important;
+}
+
+/* Colori specifici */
 #page-entrate-total { color: #047857 !important; }
 #page-prestiti .page-counter-box-top { border-right: 5px solid #e74c3c !important; background-color: #fef2f2 !important; }
 #page-loans-total { color: #b91c1c !important; }
@@ -44,17 +53,13 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 .border-green { border: 1px solid #e2e8f0; border-left: 5px solid #2cc71f; }
 .border-red { border: 1px solid #e2e8f0; border-left: 5px solid #e74c3c; }
 
-/* --- ALLINEAMENTO RIGHE (Flexbox per allineare tutto) --- */
-.grid-inputs { display: flex; flex-direction: column; gap: 12px; }
-.input-row { display: flex; align-items: center; width: 100%; gap: 20px; }
-.block-label { width: 180px; font-weight: 700; color: #475569; flex-shrink: 0; }
-.input-row select, .input-row input[type="text"] { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
-.amount-wrapper { width: 140px; position: relative; flex-shrink: 0; }
-.amount-wrapper::before { content: "€"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #64748b; }
-.amount-input { width: 100% !important; padding: 10px 10px 10px 25px !important; text-align: right; border: 1px solid #cbd5e1; border-radius: 6px; }
-
-/* --- TABELLE --- */
+/* --- TABELLE E INPUT --- */
 .loans-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 .loans-table th { background-color: #f8fafc; color: #64748b; font-size: 8.5pt; font-weight: 800; padding: 12px 8px; text-align: center; border-bottom: 2px solid #e2e8f0; }
 .loans-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; }
+.amount-wrapper { position: relative; width: 105px; margin: 0 auto; }
+.amount-wrapper::before { content: "€"; position: absolute; left: 8px; font-weight: bold; color: #64748b; }
+.loan-amount-input { width: 100% !important; padding: 6px 6px 6px 20px !important; font-size: 9.5pt; font-weight: 600; text-align: right; }
 .balance-output { background-color: #fef2f2 !important; border-color: #fecaca !important; color: #b91c1c !important; }
+.input-block-stipendio { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.amount-input { width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-align: right; padding-left: 25px; }

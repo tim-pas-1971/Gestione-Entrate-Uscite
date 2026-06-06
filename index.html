@@ -24,30 +24,105 @@
 
         <main class="main-content">
             <div class="top-control-bar">
-                <div class="control-group"><label>DATA</label><input type="date" id="global-date"></div>
-                <div class="action-buttons"><button id="save-btn" class="btn-blue">💾 Salva</button><button id="print-btn" class="btn-dark">🖨️ Stampa</button></div>
-                <div class="global-counter-box"><span class="counter-label">TOTALE</span><span id="daily-total" class="counter-value">€ 0.00</span></div>
+                <div class="control-group">
+                    <label>DATA</label>
+                    <input type="date" id="global-date">
+                </div>
+                <div class="action-buttons">
+                    <button id="save-btn" class="btn-blue">💾 Salva</button>
+                    <button id="print-btn" class="btn-dark">🖨️ Stampa</button>
+                </div>
+                <div class="global-counter-box">
+                    <span class="counter-label">TOTALE GIORNATA</span>
+                    <span id="daily-total" class="counter-value">€ 0.00</span>
+                </div>
             </div>
 
             <div id="page-entrate" class="page-body">
                 <h1 class="page-title">Entrate Generali</h1>
+                
                 <div class="page-counter-box-top">
                     <span class="page-counter-label">Totale pagina: </span>
                     <span id="page-entrate-total">€ 0.00</span>
                 </div>
-                <form id="entrate-form">
-                    <div class="card-section border-green">
-                        <h3 class="section-subtitle color-green">NASPI / PENSIONE / STIPENDIO</h3>
-                        <div class="grid-inputs">
-                            <div class="input-block-stipendio" id="row-naspi-luigi"><span class="block-label">NASPI (Luigi)</span></div>
-                            <div class="input-block-stipendio" id="row-naspi-tiziana"><span class="block-label">NASPI (Tiziana)</span></div>
-                            <div class="input-block-stipendio" id="row-pensione-luigi"><span class="block-label">PENSIONE (Luigi)</span></div>
-                            <div class="input-block-stipendio" id="row-pensione-tiziana"><span class="block-label">PENSIONE (Tiziana)</span></div>
-                            <div class="input-block-stipendio" id="row-stipendio-luigi"><span class="block-label">STIPENDIO (Luigi)</span></div>
-                            <div class="input-block-stipendio" id="row-stipendio-tiziana"><span class="block-label">STIPENDIO (Tiziana)</span></div>
+
+                <div class="card-section border-green">
+                    <h3 class="section-subtitle color-green">NASPI / PENSIONE / STIPENDIO</h3>
+                    <div class="grid-inputs">
+                        <div class="input-row" id="row-naspi-luigi"><span class="block-label">NASPI (Luigi)</span></div>
+                        <div class="input-row" id="row-naspi-tiziana"><span class="block-label">NASPI (Tiziana)</span></div>
+                        <div class="input-row" id="row-pensione-luigi"><span class="block-label">PENSIONE (Luigi)</span></div>
+                        <div class="input-row" id="row-pensione-tiziana"><span class="block-label">PENSIONE (Tiziana)</span></div>
+                        <div class="input-row" id="row-stipendio-luigi"><span class="block-label">STIPENDIO (Luigi)</span></div>
+                        <div class="input-row" id="row-stipendio-tiziana"><span class="block-label">STIPENDIO (Tiziana)</span></div>
+                    </div>
+                </div>
+
+                <div class="card-section border-green">
+                    <h3 class="section-subtitle color-green">ENTRATE VARIE</h3>
+                    <div class="grid-inputs" id="varie-inputs-container">
+                        <div class="input-row">
+                            <span class="block-label">Entrata 1</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 2</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 3</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 4</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 5</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 6</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 7</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 8</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 9</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
+                        </div>
+                        <div class="input-row">
+                            <span class="block-label">Entrata 10</span>
+                            <select class="varie-select"><option value="">Seleziona...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
+                            <input type="text" placeholder="Note libere..." class="note-input">
+                            <div class="amount-wrapper"><input type="number" step="0.01" class="amount-input" placeholder="0.00"></div>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
 
             <div id="page-prestiti" class="page-body" style="display: none;">
@@ -59,16 +134,18 @@
                 <div class="card-section border-red">
                     <form id="prestiti-form">
                         <table class="loans-table">
-                            <thead><tr><th>BENEFICIARIO</th><th>NOTE</th><th>TOTALE DOVUTO</th><th>USCITE</th><th>ENTRATE</th><th>RIMANENZA</th></tr></thead>
+                            <thead>
+                                <tr><th>BENEFICIARIO</th><th>NOTE</th><th>TOTALE DOVUTO</th><th>USCITE</th><th>ENTRATE</th><th>RIMANENZA</th></tr>
+                            </thead>
                             <tbody>
                                 </tbody>
                         </table>
                     </form>
                 </div>
             </div>
-
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

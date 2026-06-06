@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- FUNZIONE AGGIUNGI ELEMENTI (NASPI/PENSIONE) ---
+    // 1. GENERAZIONE TENDINE
     const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -17,46 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
         riga.appendChild(select);
         riga.appendChild(div);
     }
-
-    // --- 1. GENERAZIONE RIGHE NASPI/PENSIONE/STIPENDIO ---
     const righe = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
                    'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
     righe.forEach(aggiungiElementi);
 
-    // --- 2. GENERAZIONE RIGHE ENTRATE VARIE ---
-    const container = document.getElementById('varie-inputs-container');
-    const opzioni = ["Gavino Spano", "Gratta&Vinci", "Subito.it", "Vinted", "Altro"];
-
-    if (container) {
-        for (let i = 0; i < 10; i++) {
-            const row = document.createElement('div');
-            row.className = 'input-row';
-            row.innerHTML = `
-                <span class="block-label">Entrata ${i + 1}</span>
-                <select class="varie-select">
-                    <option value="">Seleziona entrata...</option>
-                    ${opzioni.map(o => `<option value="${o}">${o}</option>`).join('')}
-                </select>
-                <input type="text" placeholder="Note libere...">
-                <div class="amount-wrapper">
-                    <input type="number" step="0.01" class="amount-input" placeholder="0.00">
-                </div>
-            `;
-            container.appendChild(row);
-        }
-    }
-
-    // --- 3. LOGICA CALCOLI ---
+    // 2. LOGICA CALCOLI
     function updateAllTotals() {
         let entrateTotal = 0;
-        // Somma sia gli input NASPI che quelli delle Entrate Varie
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
             entrateTotal += parseFloat(input.value) || 0;
         });
         const entrateEl = document.getElementById('page-entrate-total');
         if (entrateEl) entrateEl.textContent = `€ ${entrateTotal.toFixed(2)}`;
 
-        // ... (resto della logica prestiti invariata) ...
         let prestitiTotal = 0;
         document.querySelectorAll('#page-prestiti .loan-amount-input').forEach(input => {
             prestitiTotal += parseFloat(input.value) || 0;
@@ -68,14 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) dailyTotalEl.textContent = `€ ${dailyTotal.toFixed(2)}`;
     }
-
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('amount-input') || e.target.classList.contains('loan-amount-input')) {
             updateAllTotals();
         }
     });
 
-    // --- 4. NAVIGAZIONE PAGINE ---
+    // 3. NAVIGAZIONE PAGINE
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     
@@ -89,28 +60,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); switchPage('page-entrate', menuEntrate); });
     if(menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); switchPage('page-prestiti', menuPrestiti); });
-
-    // Aggiunta sicura delle 10 righe
-const container = document.getElementById('varie-inputs-container');
-if (container) {
-    const opzioni = ["Gavino Spano", "Gratta&Vinci", "Subito.it", "Vinted", "Altro"];
-    for (let i = 0; i < 10; i++) {
-        const row = document.createElement('div');
-        row.className = 'input-block-stipendio'; // Usiamo la classe che funziona già
-        row.innerHTML = `
-            <span class="block-label">Varie ${i + 1}</span>
-            <select style="width: 150px;">
-                <option value="">Seleziona...</option>
-                ${opzioni.map(o => `<option value="${o}">${o}</option>`).join('')}
-            </select>
-            <input type="text" class="note-input" placeholder="Note...">
-            <div class="amount-wrapper">
-                <input type="number" step="0.01" class="amount-input" placeholder="0.00">
-            </div>
-        `;
-        container.appendChild(row);
-    }
-} else {
-    console.warn("Contenitore 'varie-inputs-container' non trovato. Controlla l'HTML.");
-}
 });

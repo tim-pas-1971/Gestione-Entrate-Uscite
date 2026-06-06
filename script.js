@@ -89,4 +89,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); switchPage('page-entrate', menuEntrate); });
     if(menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); switchPage('page-prestiti', menuPrestiti); });
+
+    // Aggiunta sicura delle 10 righe
+const container = document.getElementById('varie-inputs-container');
+if (container) {
+    const opzioni = ["Gavino Spano", "Gratta&Vinci", "Subito.it", "Vinted", "Altro"];
+    for (let i = 0; i < 10; i++) {
+        const row = document.createElement('div');
+        row.className = 'input-block-stipendio'; // Usiamo la classe che funziona già
+        row.innerHTML = `
+            <span class="block-label">Varie ${i + 1}</span>
+            <select style="width: 150px;">
+                <option value="">Seleziona...</option>
+                ${opzioni.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>
+            <input type="text" class="note-input" placeholder="Note...">
+            <div class="amount-wrapper">
+                <input type="number" step="0.01" class="amount-input" placeholder="0.00">
+            </div>
+        `;
+        container.appendChild(row);
+    }
+} else {
+    console.warn("Contenitore 'varie-inputs-container' non trovato. Controlla l'HTML.");
+}
 });

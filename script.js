@@ -16,6 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
         riga.appendChild(select);
         riga.appendChild(div);
     }
+
+  const container = document.getElementById('varie-inputs-container');
+const opzioni = ["Gavino Spano", "Gratta&Vinci", "Subito.it", "Vinted", "Altro"];
+
+for (let i = 0; i < 10; i++) {
+    const row = document.createElement('div');
+    row.className = 'input-row';
+    row.innerHTML = `
+        <select class="varie-select">
+            <option value="">Seleziona entrata...</option>
+            ${opzioni.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
+        <input type="text" placeholder="Note libere...">
+        <div class="amount-wrapper">
+            <input type="number" class="amount-input" placeholder="0.00">
+        </div>
+    `;
+    container.appendChild(row);
+}  
+    
     const righe = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
                    'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
     righe.forEach(aggiungiElementi);

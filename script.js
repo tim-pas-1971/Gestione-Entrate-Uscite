@@ -61,9 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 4. MOTORE DI SALVATAGGIO E CARICAMENTO GESTIONE DATI (localStorage) ---
+    // --- 4. MOTORE DI SALVATAGGIO E CARICAMENTO DATI ---
     
-    // Funzione per salvare lo stato della data corrente
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -73,32 +72,39 @@ document.addEventListener('DOMContentLoaded', () => {
             varie: []
         };
 
-        // Salva le 6 righe fisse superiori (Mese, Note, Cifra)
+        // Salva le 6 righe fisse superiori
         righeFisse.forEach(id => {
             const riga = document.getElementById(id);
             if (riga) {
+                const sel = riga.querySelector('select');
+                const not = riga.querySelector('.note-input');
+                const am = riga.querySelector('.amount-input');
                 datiDaSalvare.stipendi[id] = {
-                    mese: riga.querySelector('select').value,
-                    nota: riga.querySelector('.note-input').value,
-                    cifra: riga.querySelector('.amount-input').value
+                    mese: sel ? sel.value : "",
+                    nota: not ? not.value : "",
+                    cifra: am ? am.value : ""
                 };
             }
         });
 
         // Salva le 10 righe delle Entrate Varie
-        document.querySelectorAll('#page-entrate #varie-inputs-container .input-row').forEach(riga => {
-            datiDaSalvare.varie.push({
-                categoria: riga.querySelector('select').value,
-                nota: riga.querySelector('.note-input').value,
-                cifra: riga.querySelector('.amount-input').value
+        const contenitoreVarie = document.getElementById('varie-inputs-container');
+        if (contenitoreVarie) {
+            contenitoreVarie.querySelectorAll('.input-row').forEach(riga => {
+                const sel = riga.querySelector('select');
+                const not = riga.querySelector('.note-input');
+                const am = riga.querySelector('.amount-input');
+                datiDaSalvare.varie.push({
+                    categoria: sel ? sel.value : "",
+                    nota: not ? not.value : "",
+                    cifra: am ? am.value : ""
+                });
             });
-        });
+        }
 
-        // Salva nel database del browser sotto la chiave di questa specifica data
         localStorage.setItem(`dati_${dataSelezionata}`, JSON.stringify(datiDaSalvare));
     }
 
-    // Funzione per caricare i dati quando si cambia giorno
     function caricaDatiData() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -111,24 +117,33 @@ document.addEventListener('DOMContentLoaded', () => {
             // Ripristina le righe fisse
             righeFisse.forEach(id => {
                 const riga = document.getElementById(id);
-                if (riga && dati.stipendi[id]) {
-                    riga.querySelector('select').value = dati.stipendi[id].toLowerCase === 'seleziona...' ? '' : dati.stipendi[id].mese;
-                    riga.querySelector('.note-input').value = dati.stipendi[id].nota;
-                    riga.querySelector('.amount-input').value = dati.stipendi[id].cifra;
+                if (riga && dati.stipendi && dati.stipendi[id]) {
+                    const sel = riga.querySelector('select');
+                    const not = riga.querySelector('.note-input');
+                    const am = riga.querySelector('.amount-input');
+                    if (sel) sel.value = dati.stipendi[id].mese;
+                    if (not) not.value = dati.stipendi[id].nota;
+                    if (am) am.value = dati.stipendi[id].cifra;
                 }
             });
 
             // Ripristina le entrate varie
-            const righeVarie = document.querySelectorAll('#page-entrate #varie-inputs-container .input-row');
-            righeVarie.forEach((riga, index) => {
-                if (dati.varie[index]) {
-                    riga.querySelector('select').value = dati.varie[index].categoria;
-                    riga.querySelector('.note-input').value = dati.varie[index].nota;
-                    riga.querySelector('.amount-input').value = dati.varie[index].cifra;
-                }
-            });
+            const contenitoreVarie = document.getElementById('varie-inputs-container');
+            if (contenitoreVarie) {
+                const righeVarie = contenitoreVarie.querySelectorAll('.input-row');
+                righeVarie.forEach((riga, index) => {
+                    if (dati.varie && dati.varie[index]) {
+                        const sel = riga.querySelector('select');
+                        const not = riga.querySelector('.note-input');
+                        const am = riga.querySelector('.amount-input');
+                        if (sel) sel.value = dati.varie[index].categoria;
+                        if (not) not.value = dati.varie[index].nota;
+                        if (am) am.value = dati.varie[index].cifra;
+                    }
+                });
+            }
         } else {
-            // Se non ci sono dati salvati per quel giorno, svuota e pulisci tutti i campi
+            // Se non ci sono dati salvati per questo giorno, svuota e pulisci la videata
             document.querySelectorAll('#page-entrate select').forEach(s => s.value = "");
             document.querySelectorAll('#page-entrate input[type="text"]').forEach(i => i.value = "");
             document.querySelectorAll('#page-entrate input[type="number"]').forEach(n => n.value = "");
@@ -137,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ricalcolaTutto();
     }
 
-    // Ascolta quando l'utente cambia manualmente la data dal calendario
+    // Cambiando la data dal calendario, carichiamo semplicemente i dati memorizzati per quel giorno
     if (dateInput) {
         dateInput.addEventListener('change', caricaDatiData);
     }
@@ -150,13 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saveBtn) {
         saveBtn.addEventListener('click', () => {
             salvaDatiCorrenti();
-            alert(`Dati del giorno ${dateInput.value} salvati con successo in memoria!`);
+            alert(`Dati del giorno ${dateInput.value} salvati con successo!`);
         });
     }
 
     if (printBtn) {
         printBtn.addEventListener('click', () => {
-            window.print(); // Apre la schermata nativa di stampa del sistema operativo
+            window.print();
         });
     }
 
@@ -181,6 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
         menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     }
 
-    // Carica i dati per la giornata odierna subito all'avvio
+    // Esegui il caricamento iniziale per la giornata odierna
     caricaDatiData();
 });

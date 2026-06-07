@@ -87,20 +87,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Salva le 10 righe delle Entrate Varie
-        const contenitoreVarie = document.getElementById('varie-inputs-container');
-        if (contenitoreVarie) {
-            contenitoreVarie.querySelectorAll('.input-row').forEach(riga => {
-                const sel = riga.querySelector('select');
-                const not = riga.querySelector('.note-input');
-                const am = riga.querySelector('.amount-input');
-                datiDaSalvare.varie.push({
-                    categoria: sel ? sel.value : "",
-                    nota: not ? not.value : "",
-                    cifra: am ? am.value : ""
-                });
+        // Salva le 10 righe delle Entrate Varie puntando a .row-varie
+        document.querySelectorAll('#page-entrate .row-varie').forEach(riga => {
+            const sel = riga.querySelector('select');
+            const not = riga.querySelector('.note-input');
+            const am = riga.querySelector('.amount-input');
+            datiDaSalvare.varie.push({
+                categoria: sel ? sel.value : "",
+                nota: not ? not.value : "",
+                cifra: am ? am.value : ""
             });
-        }
+        });
 
         localStorage.setItem(`dati_${dataSelezionata}`, JSON.stringify(datiDaSalvare));
     }
@@ -127,23 +124,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Ripristina le entrate varie
-            const contenitoreVarie = document.getElementById('varie-inputs-container');
-            if (contenitoreVarie) {
-                const righeVarie = contenitoreVarie.querySelectorAll('.input-row');
-                righeVarie.forEach((riga, index) => {
-                    if (dati.varie && dati.varie[index]) {
-                        const sel = riga.querySelector('select');
-                        const not = riga.querySelector('.note-input');
-                        const am = riga.querySelector('.amount-input');
-                        if (sel) sel.value = dati.varie[index].categoria;
-                        if (not) not.value = dati.varie[index].nota;
-                        if (am) am.value = dati.varie[index].cifra;
-                    }
-                });
-            }
+            // Ripristina le entrate varie puntando a .row-varie
+            const righeVarie = document.querySelectorAll('#page-entrate .row-varie');
+            righeVarie.forEach((riga, index) => {
+                if (dati.varie && dati.varie[index]) {
+                    const sel = riga.querySelector('select');
+                    const not = riga.querySelector('.note-input');
+                    const am = riga.querySelector('.amount-input');
+                    if (sel) sel.value = dati.varie[index].categoria;
+                    if (not) not.value = dati.varie[index].nota;
+                    if (am) am.value = dati.varie[index].cifra;
+                }
+            });
         } else {
-            // Se non ci sono dati salvati per questo giorno, svuota e pulisci la videata
+            // Se non ci sono dati salvati per questo giorno, svuota la videata
             document.querySelectorAll('#page-entrate select').forEach(s => s.value = "");
             document.querySelectorAll('#page-entrate input[type="text"]').forEach(i => i.value = "");
             document.querySelectorAll('#page-entrate input[type="number"]').forEach(n => n.value = "");
@@ -152,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ricalcolaTutto();
     }
 
-    // Cambiando la data dal calendario, carichiamo semplicemente i dati memorizzati per quel giorno
+    // Cambiando la data dal calendario, carichiamo semplicemente i dati memorizzati
     if (dateInput) {
         dateInput.addEventListener('change', caricaDatiData);
     }
@@ -196,6 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     }
 
-    // Esegui il caricamento iniziale per la giornata odierna
+    // Caricamento iniziale dei dati per il giorno corrente all'avvio
     caricaDatiData();
 });

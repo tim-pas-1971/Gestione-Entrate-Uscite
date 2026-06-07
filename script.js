@@ -1,97 +1,97 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. GENERAZIONE MESI PER LE RIGHE FISSE DI STIPENDIO
+    // 1. COMPILAZIONE RIGHE FISSE IN ALTO (NASPI / PENSIONE / STIPENDIO)
     const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
 
-    function inizializzaRigaStipendio(id) {
+    function inizializzaRigaFissa(id) {
         const riga = document.getElementById(id);
         if (!riga) return;
 
-        // Crea la tendina del mese
+        // Tendina Mesi
         const select = document.createElement('select');
         select.className = 'period-select';
         mesi.forEach(m => {
             select.innerHTML += `<option value="${m}">${m}</option>`;
         });
 
-        // Crea il campo note (mancava ed era disallineato prima!)
+        // Input Testo Libero
         const inputNote = document.createElement('input');
         inputNote.type = 'text';
         inputNote.placeholder = 'Note...';
         inputNote.className = 'note-input';
 
-        // Crea il riquadro dell'importo
+        // Campo Importo Numerico
         const wrapper = document.createElement('div');
         wrapper.className = 'amount-wrapper';
         wrapper.innerHTML = '<input type="number" step="0.01" class="amount-input" placeholder="0.00">';
 
-        // Appende tutto in fila nell'ordine corretto
+        // Aggancio pulito sulla stessa linea
         riga.appendChild(select);
         riga.appendChild(inputNote);
         riga.appendChild(wrapper);
     }
 
-    // Esegue l'inizializzazione sulle prime 6 righe
-    const righeStipendi = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
-                           'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
-    righeStipendi.forEach(inizializzaRigaStipendio);
+    const righeFisse = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
+                         'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
+    righeFisse.forEach(inizializzaRigaFissa);
 
 
-    // 2. MOTORE DEI CALCOLI IN TEMPO REALE
-    function calcolaTotali() {
-        let sommaEntrate = 0;
+    // 2. LOGICA DEI CALCOLI AUTOMATICI
+    function ricalcolaTutto() {
+        let totaleEntrate = 0;
         
-        // Cerca tutti i campi cifra nella pagina entrate e li somma
+        // Seleziona e somma tutti i campi con classe .amount-input presenti nella pagina
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
-            sommaEntrate += parseFloat(input.value) || 0;
+            totaleEntrate += parseFloat(input.value) || 0;
         });
         
+        // Aggiorna il totale parziale della pagina corrente
         const entrateTotaleEl = document.getElementById('page-entrate-total');
         if (entrateTotaleEl) {
-            entrateTotaleEl.textContent = `€ ${sommaEntrate.toFixed(2)}`;
+            entrateTotaleEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
         }
 
-        // Il totale di giornata (al momento riflette le sole entrate correnti)
+        // Aggiorna il totale generale di giornata in alto a destra
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
-            dailyTotalEl.textContent = `€ ${sommaEntrate.toFixed(2)}`;
+            dailyTotalEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
         }
     }
 
-    // Ascolta quando scrivi in qualunque campo numero
+    // Esegue il calcolo ogni volta che l'utente inserisce o modifica una cifra
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('amount-input')) {
-            calcolaTotali();
+            ricalcolaTutto();
         }
     });
 
 
-    // 3. CAMBIO PAGINE (NAVIGAZIONE)
+    // 3. GESTIONE DELLA NAVIGAZIONE (CAMBIO PAGINE)
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     
-    function mostraPagina(pageId, bottoneAttivo) {
+    function cambiaPagina(idPagina, pulsanteSelezionato) {
         document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
         
-        const paginaTarget = document.getElementById(pageId);
+        const paginaTarget = document.getElementById(idPagina);
         if (paginaTarget) paginaTarget.style.display = 'block';
         
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-        if (bottoneAttivo) bottoneAttivo.classList.add('active');
+        if (pulsanteSelezionato) pulsanteSelezionato.classList.add('active');
     }
 
     if (menuEntrate) {
         menuEntrate.addEventListener('click', (e) => {
             e.preventDefault();
-            mostraPagina('page-entrate', menuEntrate);
+            cambiaPagina('page-entrate', menuEntrate);
         });
     }
     if (menuPrestiti) {
         menuPrestiti.addEventListener('click', (e) => {
             e.preventDefault();
-            mostraPagina('page-prestiti', menuPrestiti);
+            cambiaPagina('page-prestiti', menuPrestiti);
         });
     }
 });

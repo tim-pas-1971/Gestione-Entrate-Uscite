@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (NASPI / PENSIONE / STIPENDIO) ---
-    const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
+    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (Con - Periodo - in cima) ---
+    const mesi = ["- Periodo -", "GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
 
@@ -11,7 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const select = document.createElement('select');
         select.className = 'period-select';
-        mesi.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+        
+        mesi.forEach((m, index) => {
+            if (index === 0) {
+                select.innerHTML += `<option value="">${m}</option>`;
+            } else {
+                select.innerHTML += `<option value="${m}">${m}</option>`;
+            }
+        });
 
         const inputNote = document.createElement('input');
         inputNote.type = 'text';
@@ -86,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 4. MOTORE CENTRALIZZATO SALVATAGGIO E CARICAMENTO DATI (localStorage) ---
+    // --- 4. MOTORE CENTRALIZZATO SALVATAGGIO E CARICAMENTO DATI ---
     
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
@@ -137,6 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
+        // Reset preventivo assoluto di TUTTI i campi esistenti nella pagina
+        // Questo garantisce che nessun dato vecchio rimanga "appiccicato" cambiando data
+        document.querySelectorAll('main select').forEach(s => s.value = "");
+        document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
+        document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
+
         const datiSalvati = localStorage.getItem(`dati_${dataSelezionata}`);
 
         if (datiSalvati) {
@@ -173,13 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     riga.querySelector('.loan-entrate').value = dati.prestiti[index].entrate || "";
                 }
             });
-        } else {
-            // Se la data è nuova, svuota TUTTI i campi (sia select che input di testo o numerici)
-            document.querySelectorAll('main select').forEach(s => s.value = "");
-            document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
-            document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
         }
 
+        // Ricalcola immediatamente i totali (se il giorno è vuoto, i totali andranno a 0.00)
         ricalcolaTutto();
     }
 

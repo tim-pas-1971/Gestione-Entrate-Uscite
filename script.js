@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE (NASPI / PENSIONE / STIPENDIO) ---
+    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (NASPI / PENSIONE / STIPENDIO) ---
     const mesi = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 3. LOGICA DEI CALCOLI AUTOMATICI ---
+    // --- 3. LOGICA DEI CALCOLI AUTOMATICI (ENTRATE E PRESTITI) ---
     function ricalcolaTutto() {
+        // A) Conteggio Totale Pagina Entrate
         let totaleEntrate = 0;
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
             totaleEntrate += parseFloat(input.value) || 0;
@@ -50,18 +51,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const entrateTotaleEl = document.getElementById('page-entrate-total');
         if (entrateTotaleEl) entrateTotaleEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
 
+        // B) Conteggio Matematica Tabella Prestiti (Riga per riga + Totale di Pagina)
+        let totaleRimanenzePrestiti = 0;
+        document.querySelectorAll('#loans-table-body .loan-row').forEach(riga => {
+            const dovuto = parseFloat(riga.querySelector('.loan-dovuto').value) || 0;
+            const uscite = parseFloat(riga.querySelector('.loan-uscite').value) || 0;
+            const entrate = parseFloat(riga.querySelector('.loan-entrate').value) || 0;
+            
+            // Formula finanziaria stabilita
+            const rimanenza = dovuto + uscite - entrate;
+            
+            const campoRimanenza = riga.querySelector('.loan-rimanenza');
+            if (campoRimanenza) {
+                campoRimanenza.value = rimanenza.toFixed(2);
+            }
+            
+            totaleRimanenzePrestiti += rimanenza;
+        });
+
+        const loansTotaleEl = document.getElementById('page-loans-total');
+        if (loansTotaleEl) loansTotaleEl.textContent = `€ ${totaleRimanenzePrestiti.toFixed(2)}`;
+
+        // C) Totale Giornata Unificato in Alto a Destra (Entrate + Rimanenze)
         const dailyTotalEl = document.getElementById('daily-total');
-        if (dailyTotalEl) dailyTotalEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
+        if (dailyTotalEl) {
+            const totaleGiornata = totaleEntrate + totaleRimanenzePrestiti;
+            dailyTotalEl.textContent = `€ ${totaleGiornata.toFixed(2)}`;
+        }
     }
 
+    // Intercetta qualunque immissione numerica nelle tabelle per aggiornare i calcoli
     document.addEventListener('input', (e) => {
-        if (e.target.classList.contains('amount-input')) {
+        if (e.target.classList.contains('amount-input') || e.target.classList.contains('loan-amount-input')) {
             ricalcolaTutto();
         }
     });
 
 
-    // --- 4. MOTORE DI SALVATAGGIO E CARICAMENTO DATI ---
+    // --- 4. MOTORE CENTRALIZZATO SALVATAGGIO E CARICAMENTO DATI (localStorage) ---
     
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
@@ -69,33 +96,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const datiDaSalvare = {
             stipendi: {},
-            varie: []
+            varie: [],
+            prestiti: []
         };
 
-        // Salva le 6 righe fisse superiori
+        // Salva pagina Entrate - Sezione Fissa
         righeFisse.forEach(id => {
             const riga = document.getElementById(id);
             if (riga) {
-                const sel = riga.querySelector('select');
-                const not = riga.querySelector('.note-input');
-                const am = riga.querySelector('.amount-input');
                 datiDaSalvare.stipendi[id] = {
-                    mese: sel ? sel.value : "",
-                    nota: not ? not.value : "",
-                    cifra: am ? am.value : ""
+                    mese: riga.querySelector('select')?.value || "",
+                    nota: riga.querySelector('.note-input')?.value || "",
+                    cifra: riga.querySelector('.amount-input')?.value || ""
                 };
             }
         });
 
-        // Salva le 10 righe delle Entrate Varie puntando a .row-varie
+        // Salva pagina Entrate - Sezione Varie
         document.querySelectorAll('#page-entrate .row-varie').forEach(riga => {
-            const sel = riga.querySelector('select');
-            const not = riga.querySelector('.note-input');
-            const am = riga.querySelector('.amount-input');
             datiDaSalvare.varie.push({
-                categoria: sel ? sel.value : "",
-                nota: not ? not.value : "",
-                cifra: am ? am.value : ""
+                categoria: riga.querySelector('select')?.value || "",
+                nota: riga.querySelector('.note-input')?.value || "",
+                cifra: riga.querySelector('.amount-input')?.value || ""
+            });
+        });
+
+        // Salva pagina Prestiti - Tabella intera
+        document.querySelectorAll('#loans-table-body .loan-row').forEach(riga => {
+            datiDaSalvare.prestiti.push({
+                nome: riga.querySelector('.loan-name').value,
+                nota: riga.querySelector('.loan-note').value,
+                dovuto: riga.querySelector('.loan-dovuto').value,
+                uscite: riga.querySelector('.loan-uscite').value,
+                entrate: riga.querySelector('.loan-entrate').value
             });
         });
 
@@ -111,42 +144,47 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datiSalvati) {
             const dati = JSON.parse(datiSalvati);
 
-            // Ripristina le righe fisse
+            // Carica Righe Fisse Entrate
             righeFisse.forEach(id => {
                 const riga = document.getElementById(id);
                 if (riga && dati.stipendi && dati.stipendi[id]) {
-                    const sel = riga.querySelector('select');
-                    const not = riga.querySelector('.note-input');
-                    const am = riga.querySelector('.amount-input');
-                    if (sel) sel.value = dati.stipendi[id].mese;
-                    if (not) not.value = dati.stipendi[id].nota;
-                    if (am) am.value = dati.stipendi[id].cifra;
+                    if (riga.querySelector('select')) riga.querySelector('select').value = dati.stipendi[id].mese;
+                    if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.stipendi[id].nota;
+                    if (riga.querySelector('.amount-input')) riga.querySelector('.amount-input').value = dati.stipendi[id].cifra;
                 }
             });
 
-            // Ripristina le entrate varie puntando a .row-varie
+            // Carica Righe Varie Entrate
             const righeVarie = document.querySelectorAll('#page-entrate .row-varie');
             righeVarie.forEach((riga, index) => {
                 if (dati.varie && dati.varie[index]) {
-                    const sel = riga.querySelector('select');
-                    const not = riga.querySelector('.note-input');
-                    const am = riga.querySelector('.amount-input');
-                    if (sel) sel.value = dati.varie[index].categoria;
-                    if (not) not.value = dati.varie[index].nota;
-                    if (am) am.value = dati.varie[index].cifra;
+                    if (riga.querySelector('select')) riga.querySelector('select').value = dati.varie[index].categoria;
+                    if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.varie[index].nota;
+                    if (riga.querySelector('.amount-input')) riga.querySelector('.amount-input').value = dati.varie[index].cifra;
+                }
+            });
+
+            // Carica Righe Tabella Prestiti
+            const righeTabellaPrestiti = document.querySelectorAll('#loans-table-body .loan-row');
+            righeTabellaPrestiti.forEach((riga, index) => {
+                if (dati.prestiti && dati.prestiti[index]) {
+                    riga.querySelector('.loan-name').value = dati.prestiti[index].nome || "";
+                    riga.querySelector('.loan-note').value = dati.prestiti[index].nota || "";
+                    riga.querySelector('.loan-dovuto').value = dati.prestiti[index].dovuto || "";
+                    riga.querySelector('.loan-uscite').value = dati.prestiti[index].uscite || "";
+                    riga.querySelector('.loan-entrate').value = dati.prestiti[index].entrate || "";
                 }
             });
         } else {
-            // Se non ci sono dati salvati per questo giorno, svuota la videata
-            document.querySelectorAll('#page-entrate select').forEach(s => s.value = "");
-            document.querySelectorAll('#page-entrate input[type="text"]').forEach(i => i.value = "");
-            document.querySelectorAll('#page-entrate input[type="number"]').forEach(n => n.value = "");
+            // Svuota completamente l'interfaccia se la data selezionata non ha dati storici salvati
+            document.querySelectorAll('main select').forEach(s => s.value = "");
+            document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
+            document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
         }
 
         ricalcolaTutto();
     }
 
-    // Cambiando la data dal calendario, carichiamo semplicemente i dati memorizzati
     if (dateInput) {
         dateInput.addEventListener('change', caricaDatiData);
     }
@@ -164,9 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (printBtn) {
-        printBtn.addEventListener('click', () => {
-            window.print();
-        });
+        printBtn.addEventListener('click', () => { window.print(); });
     }
 
 
@@ -190,6 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     }
 
-    // Caricamento iniziale dei dati per il giorno corrente all'avvio
+    // Caricamento dei dati all'avvio dell'app
     caricaDatiData();
 });

@@ -135,10 +135,57 @@
                     <form id="prestiti-form">
                         <table class="loans-table">
                             <thead>
-                                <tr><th>BENEFICIARIO</th><th>NOTE</th><th>TOTALE DOVUTO</th><th>USCITE</th><th>ENTRATE</th><th>RIMANENZA</th></tr>
+                                <tr>
+                                    <th>BENEFICIARIO</th>
+                                    <th>NOTE</th>
+                                    <th>TOTALE DOVUTO</th>
+                                    <th>USCITE</th>
+                                    <th>ENTRATE</th>
+                                    <th>RIMANENZA</th>
+                                </tr>
                             </thead>
-                            <tbody>
-                                </tbody>
+                            <tbody id="loans-table-body">
+                                <tr class="loan-row">
+                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="loan-row">
+                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="loan-row">
+                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="loan-row">
+                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="loan-row">
+                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </form>
                 </div>

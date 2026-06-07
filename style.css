@@ -48,90 +48,28 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 .border-red { border-left: 5px solid #e74c3c; }
 .section-subtitle { font-size: 11pt; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px; }
 .color-green { color: #15803d; }
+.color-red { color: #b91c1c; } /* Rosso per la sezione Prestiti */
 
-/* --- GRIGLIA DI ALLINEAMENTO ORIZZONTALE E VERTICALE --- */
+/* --- GRIGLIA DI ALLINEAMENTO ENTRATE (FLEXBOX) --- */
 .grid-inputs { display: flex; flex-direction: column; gap: 14px; }
 .input-row { display: flex; align-items: center; width: 100%; gap: 15px; }
-
-/* Etichette fisse a sinistra */
 .block-label { width: 150px; font-size: 10pt; font-weight: 700; color: #475569; flex-shrink: 0; }
 
-/* Stile Input e Tendine */
 input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; background-color: #ffffff; outline: none; }
 .period-select, .varie-select { width: 180px; flex-shrink: 0; }
-
-/* Note libere flessibili (allungate al massimo nello spazio centrale) */
 .note-input { flex: 1; } 
 
-/* Campi Cifra bloccati e incolonnati sulla destra */
 .amount-wrapper { position: relative; width: 130px; flex-shrink: 0; }
 .amount-wrapper::before { content: "€"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #15803d; font-size: 10pt; }
 .amount-input { width: 100%; padding: 9px 12px 9px 28px; text-align: right; font-weight: 700; color: #15803d; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; }
 
-/* --- TABELLE (PRESTITI) --- */
-.loans-table { width: 100%; border-collapse: collapse; }
-.loans-table th { background-color: #f8fafc; color: #64748b; font-size: 8.5pt; font-weight: 800; padding: 12px 8px; text-align: center; border-bottom: 2px solid #e2e8f0; }
-.loans-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; }
+/* --- STRUTTURA TABELLA PRESTITI --- */
+.loans-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+.loans-table th { font-size: 8.5pt; font-weight: 800; color: #64748b; padding: 12px 8px; text-align: center; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
+.loans-table td { padding: 10px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.loans-table input[type="text"] { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; outline: none; }
 
-/* --- FORMATTAZIONE DETTAGLIATA TABELLA PRESTITI --- */
-.loans-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-.loans-table th {
-    font-size: 8.5pt;
-    font-weight: 800;
-    color: #64748b;
-    padding: 12px 8px;
-    text-align: center;
-    border-bottom: 2px solid #e2e8f0;
-    letter-spacing: 0.5px;
-}
-.loans-table td {
-    padding: 10px 6px;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
-}
-.loans-table input[type="text"] {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 10pt;
-    color: #334155;
-    outline: none;
-}
-/* Allineamento wrapper cifre in tabella */
-.loans-table .amount-wrapper {
-    width: 125px;
-    margin: 0 auto;
-    position: relative;
-}
-.loans-table .amount-wrapper::before {
-    content: "€";
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: bold;
-    color: #64748b;
-    font-size: 9.5pt;
-}
-.loans-table .loan-amount-input {
-    width: 100% !important;
-    padding: 9px 10px 9px 24px !important;
-    font-size: 9.5pt;
-    font-weight: 600;
-    text-align: right;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    outline: none;
-}
-/* Stile specifico rosso per la rimanenza calcolata */
-.loans-table .balance-output {
-    background-color: #fef2f2 !important;
-    border-color: #fecaca !important;
-    color: #b91c1c !important;
-    font-weight: 700;
-}
+.loans-table .amount-wrapper { width: 125px; margin: 0 auto; position: relative; }
+.loans-table .amount-wrapper::before { content: "€"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #b91c1c; font-size: 9.5pt; }
+.loans-table .loan-amount-input { width: 100% !important; padding: 9px 10px 9px 24px !important; font-size: 9.5pt; font-weight: 600; text-align: right; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; color: #b91c1c; }
+.loans-table .balance-output { background-color: #fef2f2 !important; border-color: #fecaca !important; color: #b91c1c !important; font-weight: 700; }

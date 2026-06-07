@@ -51,14 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const entrateTotaleEl = document.getElementById('page-entrate-total');
         if (entrateTotaleEl) entrateTotaleEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
 
-        // B) Conteggio Matematica Tabella Prestiti (Riga per riga + Totale di Pagina)
+        // B) Conteggio Tabella Prestiti (Riga per riga + Totale di Pagina)
         let totaleRimanenzePrestiti = 0;
         document.querySelectorAll('#loans-table-body .loan-row').forEach(riga => {
             const dovuto = parseFloat(riga.querySelector('.loan-dovuto').value) || 0;
             const uscite = parseFloat(riga.querySelector('.loan-uscite').value) || 0;
             const entrate = parseFloat(riga.querySelector('.loan-entrate').value) || 0;
             
-            // Formula finanziaria stabilita
             const rimanenza = dovuto + uscite - entrate;
             
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
@@ -80,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Intercetta qualunque immissione numerica nelle tabelle per aggiornare i calcoli
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('amount-input') || e.target.classList.contains('loan-amount-input')) {
             ricalcolaTutto();
@@ -121,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Salva pagina Prestiti - Tabella intera
+        // Salva pagina Prestiti - Tabella
         document.querySelectorAll('#loans-table-body .loan-row').forEach(riga => {
             datiDaSalvare.prestiti.push({
                 nome: riga.querySelector('.loan-name').value,
@@ -176,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         } else {
-            // Svuota completamente l'interfaccia se la data selezionata non ha dati storici salvati
+            // Se la data è nuova, svuota TUTTI i campi (sia select che input di testo o numerici)
             document.querySelectorAll('main select').forEach(s => s.value = "");
             document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
             document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");

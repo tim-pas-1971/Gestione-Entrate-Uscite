@@ -143,23 +143,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const storiaPassata = calcolaRimanenzaStoricaUscita(index, dataSelezionata);
             
-            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza > 0) {
+            // APPLICAZIONE CORREZIONE TIZIANA: Ereditiamo il nome se la storia passata esiste 
+            // ed è DIVERSA DA ZERO (quindi sia positiva che negativa!)
+            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoNome.value = storiaPassata.nome;
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = 0;
 
-            if (storiaPassata && storiaPassata.rimanenza > 0) {
+            if (storiaPassata && storiaPassata.rimanenza !== 0) {
                 saldoEreditato = storiaPassata.rimanenza;
             }
 
-            if (saldoEreditato > 0 && campoDovuto.value === "") {
+            if (saldoEreditato !== 0 && campoDovuto.value === "") {
                 campoDovuto.placeholder = saldoEreditato.toFixed(2);
             } else {
                 campoDovuto.placeholder = "0.00";
             }
 
+            // Formula Matematica di Riga
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
             const uscite = parseFloat(campoUscite.value) || 0;
             const entrate = parseFloat(campoEntrate.value) || 0;
@@ -170,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
+                // Il totale di pagina somma i saldi reali (se positivi pesano sul totale)
                 totaleRimanenzePrestiti += rimanenza > 0 ? rimanenza : 0;
             }
         });
@@ -190,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. MOTORE SALVATAGGIO MODIFICATO CORRETTO ---
+    // --- 5. MOTORE SALVATAGGIO ---
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -220,11 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoNome = riga.querySelector('.loan-name').value;
             let campoDovuto = riga.querySelector('.loan-dovuto').value;
             
-            // BLINDATURA SALVATAGGIO: Se il dovuto è vuoto a schermo ma esiste un placeholder ereditato attivo, 
-            // salviamo direttamente il valore del placeholder per non rompere i calcoli futuri.
             if (campoDovuto === "") {
                 const storiaPassata = calcolaRimanenzaStoricaUscita(index, dataSelezionata);
-                if (storiaPassata && storiaPassata.rimanenza > 0) {
+                if (storiaPassata && storiaPassata.rimanenza !== 0) {
                     campoDovuto = storiaPassata.rimanenza.toString();
                 }
             }

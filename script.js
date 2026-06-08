@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE ---
+    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (Con - Periodo - in cima) ---
     const mesi = ["- Periodo -", "GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -48,9 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.value = `${anno}-${mese}-${giorno}`;
     }
 
-    // --- 2. FUNZIONE DI SOTTRAZIONE DATA SICURA (Evita problemi di fuso orario) ---
+    // --- 2. FUNZIONE DI SOTTRAZIONE DATA SICURA ---
     function sottraiGiorni(dataStr, giorniDaSottrarre) {
-        // Spezziamo la stringa "AAAA-MM-GG" prendendo i valori locali puri
         const parti = dataStr.split('-');
         const anno = parseInt(parti[0], 10);
         const mese = parseInt(parti[1], 10) - 1;
@@ -66,9 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. RICERCA CRONOLOGICA PURA PER RIGA ---
+    // --- 3. RICERCA CRONOLOGICA CONTINUA (Saltando i giorni vuoti) ---
     function cercaRimanenzaAttivaPassata(indiceRiga, dataCorrente) {
-        // Cerchiamo a ritroso fino a 365 giorni fa
+        // Scansioniamo all'indietro fino a 365 giorni
         for (let i = 1; i <= 365; i++) {
             const dataStr = sottraiGiorni(dataCorrente, i);
             const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
@@ -78,23 +77,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dati.prestiti && dati.prestiti[indiceRiga]) {
                     const p = dati.prestiti[indiceRiga];
                     
+                    // Se troviamo un giorno in cui l'utente aveva scritto un nome
                     if (p.nome && p.nome.trim() !== "") {
                         const dov = parseFloat(p.dovuto) || 0;
                         const usc = parseFloat(p.uscite) || 0;
                         const ent = parseFloat(p.entrate) || 0;
                         const rim = dov + usc - ent;
                         
-                        // Se troviamo un record in questa riga:
-                        // Se ha rimanenza > 0 restituiamo i dati per il trascinamento.
-                        // Se è 0, significa che la storia si è interrotta (debito estinto), interrompiamo la ricerca.
-                        if (rim > 0) {
-                            return { nome: p.nome, rimanenza: rim };
-                        } else {
+                        // SE LA RIMANENZA È COMPLETAMENTE AZZERATA:
+                        // Significa che il debito è stato estinto in questa data passata.
+                        // Interrompiamo immediatamente la ricerca restituendo null (catena spezzata).
+                        if (rim <= 0) {
                             return null;
                         }
+                        
+                        // SE LA RIMANENZA È ANCORA APERTA (> 0):
+                        // Restituiamo il nome e il valore per portarlo in avanti nel futuro.
+                        return { nome: p.nome, rimanenza: rim };
                     }
                 }
             }
+            // Se in questo giorno 'dataStr' non c'è alcun salvataggio, lo script NON si ferma.
+            // Continua il ciclo 'for' andando al giorno prima ancora, finché non trova un record.
         }
         return null;
     }
@@ -131,10 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
-            // Cerchiamo la storia passata di questa riga con la funzione corretta
+            // Cerchiamo la storia passata (salta in automatico i giorni in cui non hai aperto l'app)
             const storiaPassata = cercaRimanenzaAttivaPassata(index, dataSelezionata);
             
-            // Se il giorno è nuovo (non salvato) e c'è un debito nel passato, compiliamo il nome in automatico
+            // Se la giornata non ha dati salvati, eredita il nome in automatico dal passato attivo
             if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata) {
                 campoNome.value = storiaPassata.nome;
             }
@@ -146,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saldoEreditato = storiaPassata.rimanenza;
             }
 
-            // Gestione del visivo del Totale Dovuto
+            // Gestione Placeholder
             if (saldoEreditato > 0 && campoDovuto.value === "") {
                 campoDovuto.placeholder = saldoEreditato.toFixed(2);
             } else {

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (Con - Periodo - in cima) ---
+    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE ---
     const mesi = ["- Periodo -", "GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -41,36 +41,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
     const dateInput = document.getElementById('global-date');
     if (dateInput && !dateInput.value) {
-        const oggi = new Date().toISOString().split('T')[0];
-        dateInput.value = oggi;
+        const oggi = new Date();
+        const anno = oggi.getFullYear();
+        const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+        const giorno = String(oggi.getDate()).padStart(2, '0');
+        dateInput.value = `${anno}-${mese}-${giorno}`;
     }
 
-    // --- 2. FUNZIONE DI RICERCA CRONOLOGICA PURA PER RIGA ---
-    // Cerca a ritroso l'ultimo giorno in cui questa specifica riga ha registrato una rimanenza attiva
-    function cercaRimanenzaAttivaPassata(indiceRiga, dataCorrente) {
-        let dataTest = new Date(dataCorrente);
+    // --- 2. FUNZIONE DI SOTTRAZIONE DATA SICURA (Evita problemi di fuso orario) ---
+    function sottraiGiorni(dataStr, giorniDaSottrarre) {
+        // Spezziamo la stringa "AAAA-MM-GG" prendendo i valori locali puri
+        const parti = dataStr.split('-');
+        const anno = parseInt(parti[0], 10);
+        const mese = parseInt(parti[1], 10) - 1;
+        const giorno = parseInt(parti[2], 10);
         
-        // Cerca all'indietro nei precedenti 365 giorni
-        for (let i = 0; i < 365; i++) {
-            dataTest.setDate(dataTest.getDate() - 1);
-            const dataStr = dataTest.toISOString().split('T')[0];
-            
+        const d = new Date(anno, mese, giorno);
+        d.setDate(d.getDate() - giorniDaSottrarre);
+        
+        const rAnno = d.getFullYear();
+        const rMese = String(d.getMonth() + 1).padStart(2, '0');
+        const rGiorno = String(d.getDate()).padStart(2, '0');
+        
+        return `${rAnno}-${rMese}-${rGiorno}`;
+    }
+
+    // --- 3. RICERCA CRONOLOGICA PURA PER RIGA ---
+    function cercaRimanenzaAttivaPassata(indiceRiga, dataCorrente) {
+        // Cerchiamo a ritroso fino a 365 giorni fa
+        for (let i = 1; i <= 365; i++) {
+            const dataStr = sottraiGiorni(dataCorrente, i);
             const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
+            
             if (datiSalvati) {
                 const dati = JSON.parse(datiSalvati);
                 if (dati.prestiti && dati.prestiti[indiceRiga]) {
                     const p = dati.prestiti[indiceRiga];
                     
-                    // Se la riga conteneva un beneficiario
                     if (p.nome && p.nome.trim() !== "") {
                         const dov = parseFloat(p.dovuto) || 0;
                         const usc = parseFloat(p.uscite) || 0;
                         const ent = parseFloat(p.entrate) || 0;
                         const rim = dov + usc - ent;
                         
-                        // APPLICAZIONE LOGICA TIZIANA: Ci interessa lo stato di questa riga.
-                        // Se la rimanenza era maggiore di zero, restituiamo il blocco storico (Nome e Cifra).
-                        // Se era 0, significa che il debito su questa riga si è estinto nel passato, quindi restituiamo null per fermarci.
+                        // Se troviamo un record in questa riga:
+                        // Se ha rimanenza > 0 restituiamo i dati per il trascinamento.
+                        // Se è 0, significa che la storia si è interrotta (debito estinto), interrompiamo la ricerca.
                         if (rim > 0) {
                             return { nome: p.nome, rimanenza: rim };
                         } else {
@@ -83,9 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    // --- 3. LOGICA DEI CALCOLI AUTOMATICI E DEL TRASCINAMENTO ---
+    // --- 4. LOGICA DEI CALCOLI AUTOMATICI E DEL TRASCINAMENTO ---
     function ricalcolaTutto() {
         const dataSelezionata = dateInput.value;
+        if (!dataSelezionata) return;
 
         // A) Conteggio Totale Pagina Entrate
         let totaleEntrate = 0;
@@ -104,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // B) Conteggio Storico ed Estratto Conto Pagina Prestiti
         let totaleRimanenzePrestiti = 0;
+        const datiSalvatiDelGiorno = localStorage.getItem(`dati_${dataSelezionata}`);
+        const haDatiSalvatiOggi = datiSalvatiDelGiorno !== null;
+
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
             const campoDovuto = riga.querySelector('.loan-dovuto');
@@ -111,16 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
-            // 1. Controlliamo se per questo giorno specifico esistono già dati salvati nel LocalStorage
-            const dataSelezionata = dateInput.value;
-            const datiSalvatiDelGiorno = localStorage.getItem(`dati_${dataSelezionata}`);
-            const haDatiSalvatiOggi = datiSalvatiDelGiorno !== null;
-
-            // 2. Cerchiamo la storia passata di questa riga
+            // Cerchiamo la storia passata di questa riga con la funzione corretta
             const storiaPassata = cercaRimanenzaAttivaPassata(index, dataSelezionata);
             
-            // 3. Se la giornata in esame NON ha dati salvati nel database (è un giorno nuovo/vuoto),
-            // ed esiste un debito residuo nel passato su questa riga, popoliamo in automatico il NOME.
+            // Se il giorno è nuovo (non salvato) e c'è un debito nel passato, compiliamo il nome in automatico
             if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata) {
                 campoNome.value = storiaPassata.nome;
             }
@@ -128,19 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = 0;
 
-            // Il saldo viene ereditato passivamente se c'è una storia attiva
             if (storiaPassata && nomeAttuale.trim() !== "") {
                 saldoEreditato = storiaPassata.rimanenza;
             }
 
-            // Gestione dei Placeholder grafici per il Totale Dovuto
+            // Gestione del visivo del Totale Dovuto
             if (saldoEreditato > 0 && campoDovuto.value === "") {
                 campoDovuto.placeholder = saldoEreditato.toFixed(2);
             } else {
                 campoDovuto.placeholder = "0.00";
             }
 
-            // Calcolo matematico definitivo della riga
+            // Formula Matematica
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
             const uscite = parseFloat(campoUscite.value) || 0;
             const entrate = parseFloat(campoEntrate.value) || 0;
@@ -171,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 4. MOTORE SALVATAGGIO E CARICAMENTO ---
+    // --- 5. MOTORE SALVATAGGIO E CARICAMENTO ---
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -214,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // Reset visivo totale preventivo all'atto del cambio data
+        // Reset campi prima del caricamento
         document.querySelectorAll('main select').forEach(s => s.value = "");
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
@@ -254,7 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Il ricalcolo fa il lavoro pesante basandosi sullo stato del database
         ricalcolaTutto();
     }
 
@@ -276,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // SIDEBAR NAVIGAZIONE
+    // NAVIGAZIONE SIDEBAR
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     

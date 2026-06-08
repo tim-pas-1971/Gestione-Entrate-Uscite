@@ -65,40 +65,46 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. RICERCA CRONOLOGICA CONTINUA (Saltando i giorni vuoti) ---
-    function cercaRimanenzaAttivaPassata(indiceRiga, dataCorrente) {
-        // Scansioniamo all'indietro fino a 365 giorni
+    // --- 3. RICERCA STORICA CONTINUA PER RIGA ---
+    function calcolaRimanenzaStoricaUscita(indiceRiga, dataTarget) {
+        let nomeTrovato = "";
+        let debitoResiduo = 0;
+        let haTrovatoStoria = false;
+
         for (let i = 1; i <= 365; i++) {
-            const dataStr = sottraiGiorni(dataCorrente, i);
+            const dataStr = sottraiGiorni(dataTarget, i);
             const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
-            
+
             if (datiSalvati) {
                 const dati = JSON.parse(datiSalvati);
                 if (dati.prestiti && dati.prestiti[indiceRiga]) {
                     const p = dati.prestiti[indiceRiga];
                     
-                    // Se troviamo un giorno in cui l'utente aveva scritto un nome
-                    if (p.nome && p.nome.trim() !== "") {
-                        const dov = parseFloat(p.dovuto) || 0;
-                        const usc = parseFloat(p.uscite) || 0;
-                        const ent = parseFloat(p.entrate) || 0;
-                        const rim = dov + usc - ent;
+                    if ((p.nome && p.nome.trim() !== "") || p.dovuto || p.uscite || p.entrate) {
+                        if (!nomeTrovato && p.nome && p.nome.trim() !== "") {
+                            nomeTrovato = p.nome;
+                        }
+
+                        const saldoEreditatoPrecedente = calcolaRimanenzaStoricaUscita(indiceRiga, dataStr);
                         
-                        // SE LA RIMANENZA È COMPLETAMENTE AZZERATA:
-                        // Significa che il debito è stato estinto in questa data passata.
-                        // Interrompiamo immediatamente la ricerca restituendo null (catena spezzata).
-                        if (rim <= 0) {
-                            return null;
+                        const dovuto = p.dovuto !== "" ? (parseFloat(p.dovuto) || 0) : (saldoEreditatoPrecedente ? saldoEreditatoPrecedente.rimanenza : 0);
+                        const uscite = parseFloat(p.uscite) || 0;
+                        const entrate = parseFloat(p.entrate) || 0;
+                        
+                        debitoResiduo = dovuto + uscite - entrate;
+                        if (!nomeTrovato && saldoEreditatoPrecedente) {
+                            nomeTrovato = saldoEreditatoPrecedente.nome;
                         }
                         
-                        // SE LA RIMANENZA È ANCORA APERTA (> 0):
-                        // Restituiamo il nome e il valore per portarlo in avanti nel futuro.
-                        return { nome: p.nome, rimanenza: rim };
+                        haTrovatoStoria = true;
+                        break;
                     }
                 }
             }
-            // Se in questo giorno 'dataStr' non c'è alcun salvataggio, lo script NON si ferma.
-            // Continua il ciclo 'for' andando al giorno prima ancora, finché non trova un record.
+        }
+
+        if (haTrovatoStoria) {
+            return { nome: nomeTrovato, rimanenza: debitoResiduo };
         }
         return null;
     }
@@ -135,29 +141,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
-            // Cerchiamo la storia passata (salta in automatico i giorni in cui non hai aperto l'app)
-            const storiaPassata = cercaRimanenzaAttivaPassata(index, dataSelezionata);
+            const storiaPassata = calcolaRimanenzaStoricaUscita(index, dataSelezionata);
             
-            // Se la giornata non ha dati salvati, eredita il nome in automatico dal passato attivo
-            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata) {
+            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza > 0) {
                 campoNome.value = storiaPassata.nome;
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = 0;
 
-            if (storiaPassata && nomeAttuale.trim() !== "") {
+            if (storiaPassata && storiaPassata.rimanenza > 0) {
                 saldoEreditato = storiaPassata.rimanenza;
             }
 
-            // Gestione Placeholder
             if (saldoEreditato > 0 && campoDovuto.value === "") {
                 campoDovuto.placeholder = saldoEreditato.toFixed(2);
             } else {
                 campoDovuto.placeholder = "0.00";
             }
 
-            // Formula Matematica
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
             const uscite = parseFloat(campoUscite.value) || 0;
             const entrate = parseFloat(campoEntrate.value) || 0;
@@ -188,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. MOTORE SALVATAGGIO E CARICAMENTO ---
+    // --- 5. MOTORE SALVATAGGIO MODIFICATO CORRETTO ---
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -214,11 +216,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        document.querySelectorAll('#loans-table-body .loan-row').forEach(riga => {
+        document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
+            const campoNome = riga.querySelector('.loan-name').value;
+            let campoDovuto = riga.querySelector('.loan-dovuto').value;
+            
+            // BLINDATURA SALVATAGGIO: Se il dovuto è vuoto a schermo ma esiste un placeholder ereditato attivo, 
+            // salviamo direttamente il valore del placeholder per non rompere i calcoli futuri.
+            if (campoDovuto === "") {
+                const storiaPassata = calcolaRimanenzaStoricaUscita(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.rimanenza > 0) {
+                    campoDovuto = storiaPassata.rimanenza.toString();
+                }
+            }
+
             datiDaSalvare.prestiti.push({
-                nome: riga.querySelector('.loan-name').value,
+                nome: campoNome,
                 nota: riga.querySelector('.loan-note').value,
-                dovuto: riga.querySelector('.loan-dovuto').value, 
+                dovuto: campoDovuto, 
                 uscite: riga.querySelector('.loan-uscite').value,
                 entrate: riga.querySelector('.loan-entrate').value
             });
@@ -231,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // Reset campi prima del caricamento
         document.querySelectorAll('main select').forEach(s => s.value = "");
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
@@ -278,7 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.addEventListener('change', caricaDatiData);
     }
 
-    // BOTTONI SUPERIORI
     const saveBtn = document.getElementById('save-btn');
     const printBtn = document.getElementById('print-btn');
 
@@ -292,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // NAVIGAZIONE SIDEBAR
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     

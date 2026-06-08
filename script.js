@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE ---
+    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (Con - Periodo - in cima) ---
     const mesi = ["- Periodo -", "GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.value = oggi;
     }
 
-    // --- 2. FUNZIONE DI RICERCA CRONOLOGICA BASATA SULLA RIMANENZA ATTIVA ---
-    // Cerca l'ultimo stato in cui la RIMANENZA era maggiore di 0 prima della data corrente
-    function recuperaUltimoStatoPrecedente(indiceRiga, dataCorrente) {
+    // --- 2. FUNZIONE DI RICERCA CRONOLOGICA PURA PER RIGA ---
+    // Cerca a ritroso l'ultimo giorno in cui questa specifica riga ha registrato una rimanenza attiva
+    function cercaRimanenzaAttivaPassata(indiceRiga, dataCorrente) {
         let dataTest = new Date(dataCorrente);
         
-        // Cerchiamo a ritroso negli ultimi 365 giorni
+        // Cerca all'indietro nei precedenti 365 giorni
         for (let i = 0; i < 365; i++) {
             dataTest.setDate(dataTest.getDate() - 1);
             const dataStr = dataTest.toISOString().split('T')[0];
@@ -61,30 +61,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dati.prestiti && dati.prestiti[indiceRiga]) {
                     const p = dati.prestiti[indiceRiga];
                     
+                    // Se la riga conteneva un beneficiario
                     if (p.nome && p.nome.trim() !== "") {
                         const dov = parseFloat(p.dovuto) || 0;
                         const usc = parseFloat(p.uscite) || 0;
                         const ent = parseFloat(p.entrate) || 0;
                         const rim = dov + usc - ent;
                         
-                        // APPLICAZIONE DEL TUO RAGIONAMENTO:
-                        // Consideriamo valido il giorno passato SOLO se la rimanenza lasciata era maggiore di 0.
-                        // Se era 0 (debito saldato), questo giorno viene ignorato e la ricerca si ferma o prosegue oltre.
+                        // APPLICAZIONE LOGICA TIZIANA: Ci interessa lo stato di questa riga.
+                        // Se la rimanenza era maggiore di zero, restituiamo il blocco storico (Nome e Cifra).
+                        // Se era 0, significa che il debito su questa riga si è estinto nel passato, quindi restituiamo null per fermarci.
                         if (rim > 0) {
                             return { nome: p.nome, rimanenza: rim };
                         } else {
-                            // Se l'ultimo giorno memorizzato ha una rimanenza zero, significa che il debito
-                            // si è chiuso lì. Interrompiamo la catena restituendo nullo.
                             return null;
                         }
                     }
                 }
             }
         }
-        return null; 
+        return null;
     }
 
-    // --- 3. LOGICA DEI CALCOLI AUTOMATICI COORDINATI ---
+    // --- 3. LOGICA DEI CALCOLI AUTOMATICI E DEL TRASCINAMENTO ---
     function ricalcolaTutto() {
         const dataSelezionata = dateInput.value;
 
@@ -112,39 +111,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
-            let nome = campoNome ? campoNome.value : "";
+            // 1. Controlliamo se per questo giorno specifico esistono già dati salvati nel LocalStorage
+            const dataSelezionata = dateInput.value;
+            const datiSalvatiDelGiorno = localStorage.getItem(`dati_${dataSelezionata}`);
+            const haDatiSalvatiOggi = datiSalvatiDelGiorno !== null;
 
-            // Cerchiamo se questa riga ha una storia con rimanenza aperta nei giorni passati
-            const statoPrecedente = recuperaUltimoStatoPrecedente(index, dataSelezionata);
-
-            // Se la giornata corrente non ha un nome inserito a mano, ma c'è una rimanenza aperta nel passato,
-            // autocompiliamo il beneficiario.
-            if (nome.trim() === "" && statoPrecedente) {
-                campoNome.value = statoPrecedente.nome;
-                nome = statoPrecedente.nome;
+            // 2. Cerchiamo la storia passata di questa riga
+            const storiaPassata = cercaRimanenzaAttivaPassata(index, dataSelezionata);
+            
+            // 3. Se la giornata in esame NON ha dati salvati nel database (è un giorno nuovo/vuoto),
+            // ed esiste un debito residuo nel passato su questa riga, popoliamo in automatico il NOME.
+            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata) {
+                campoNome.value = storiaPassata.nome;
             }
 
-            // Determiniamo il saldo ereditato
+            const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = 0;
-            if (statoPrecedente && nome.trim().toLowerCase() === statoPrecedente.nome.trim().toLowerCase()) {
-                saldoEreditato = statoPrecedente.rimanenza;
+
+            // Il saldo viene ereditato passivamente se c'è una storia attiva
+            if (storiaPassata && nomeAttuale.trim() !== "") {
+                saldoEreditato = storiaPassata.rimanenza;
             }
 
-            // Gestione dei Placeholder visivi per il Totale Dovuto
+            // Gestione dei Placeholder grafici per il Totale Dovuto
             if (saldoEreditato > 0 && campoDovuto.value === "") {
                 campoDovuto.placeholder = saldoEreditato.toFixed(2);
             } else {
                 campoDovuto.placeholder = "0.00";
             }
 
-            // Calcolo matematico definitivo della riga corrente
+            // Calcolo matematico definitivo della riga
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
             const uscite = parseFloat(campoUscite.value) || 0;
             const entrate = parseFloat(campoEntrate.value) || 0;
 
             const rimanenza = dovuto + uscite - entrate;
 
-            if (nome.trim() === "" && dovuto === 0 && uscite === 0 && entrate === 0) {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && uscite === 0 && entrate === 0) {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -211,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // Reset visivo totale preventivo
+        // Reset visivo totale preventivo all'atto del cambio data
         document.querySelectorAll('main select').forEach(s => s.value = "");
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
@@ -251,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // Il ricalcolo fa il lavoro pesante basandosi sullo stato del database
         ricalcolaTutto();
     }
 
@@ -258,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.addEventListener('change', caricaDatiData);
     }
 
-    // BOTTONI BARRA SUPERIORE
+    // BOTTONI SUPERIORI
     const saveBtn = document.getElementById('save-btn');
     const printBtn = document.getElementById('print-btn');
 
@@ -272,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // NAVIGAZIONE SIDEBAR
+    // SIDEBAR NAVIGAZIONE
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     

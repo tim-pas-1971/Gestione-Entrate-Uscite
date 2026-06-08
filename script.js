@@ -47,12 +47,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 3. LOGICA DEI CALCOLI AUTOMATICI (ENTRATE E PRESTITI) ---
+    // --- 3. LOGICA DEI CALCOLI AUTOMATICI E CONTROLLO TENDINE ---
     function ricalcolaTutto() {
-        // A) Conteggio Totale Pagina Entrate
+        // A) Conteggio Totale Pagina Entrate + Controllo svuotamento tendina
         let totaleEntrate = 0;
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
-            totaleEntrate += parseFloat(input.value) || 0;
+            const valore = parseFloat(input.value) || 0;
+            totaleEntrate += valore;
+
+            // Se il campo della cifra viene svuotato completamente, riporta la tendina su "- Periodo -"
+            if (input.value === "") {
+                const rigaPadre = input.closest('.input-row');
+                if (rigaPadre) {
+                    const selectMese = rigaPadre.querySelector('.period-select');
+                    if (selectMese) selectMese.value = "";
+                }
+            }
         });
         
         const entrateTotaleEl = document.getElementById('page-entrate-total');
@@ -144,8 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // Reset preventivo assoluto di TUTTI i campi esistenti nella pagina
-        // Questo garantisce che nessun dato vecchio rimanga "appiccicato" cambiando data
+        // Reset preventivo assoluto di TUTTI i campi esistenti nella pagina prima di caricare
         document.querySelectorAll('main select').forEach(s => s.value = "");
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
@@ -188,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Ricalcola immediatamente i totali (se il giorno è vuoto, i totali andranno a 0.00)
         ricalcolaTutto();
     }
 
@@ -233,6 +241,5 @@ document.addEventListener('DOMContentLoaded', () => {
         menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     }
 
-    // Caricamento dei dati all'avvio dell'app
     caricaDatiData();
 });

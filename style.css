@@ -34,11 +34,13 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 
 /* --- BOX TOTALE PAGINA UNIFICATO --- */
 .page-counter-box-top { display: flex; justify-content: flex-end; align-items: center; background-color: #ffffff; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #16a34a; gap: 15px; }
+.page-counter-box-top-blue { display: flex; justify-content: flex-end; align-items: center; background-color: #f0f9ff; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #0284c7; gap: 15px; }
 .page-counter-label { font-size: 11pt; font-weight: 600; color: #475569; }
-#page-entrate-total, #page-loans-total, #page-fin-total { font-size: 14pt; font-weight: normal; font-style: italic; }
+#page-entrate-total, #page-loans-total, #page-fin-total, #page-personale-total { font-size: 14pt; font-weight: normal; font-style: italic; }
 #page-entrate-total { color: #047857; }
 #page-prestiti .page-counter-box-top { border-right: 5px solid #e74c3c; background-color: #fef2f2; }
 #page-loans-total, #page-fin-total { color: #b91c1c; }
+#page-personale-total { color: #0369a1; }
 
 /* --- CONTENITORI SEZIONI (CARDS) --- */
 .page-body { padding: 30px; max-width: 1200px; margin: 0 auto; }
@@ -46,9 +48,11 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 .card-section { background-color: #ffffff; border-radius: 12px; padding: 24px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
 .border-green { border-left: 5px solid #2cc71f; }
 .border-red { border-left: 5px solid #e74c3c; }
+.border-blue { border-left: 5px solid #0284c7; }
 .section-subtitle { font-size: 11pt; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px; }
 .color-green { color: #15803d; }
 .color-red { color: #b91c1c; }
+.color-blue { color: #0369a1; }
 
 /* --- GRIGLIA DI ALLINEAMENTO ENTRATE (FLEXBOX) --- */
 .grid-inputs { display: flex; flex-direction: column; gap: 14px; }
@@ -71,9 +75,9 @@ input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; borde
 .loans-table th { font-size: 8.5pt; font-weight: 800; color: #64748b; padding: 12px 4px; text-align: center; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
 .loans-table td { padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-/* Proporzioni per gestire le 7 colonne dei Finanziamenti */
-.loans-table th:nth-child(1) { width: 13%; } /* Beneficiario */
-.loans-table th:nth-child(2) { width: 14%; } /* Finanziaria o Note */
+/* Proporzioni colonne */
+.loans-table th:nth-child(1) { width: 14%; } 
+.loans-table th:nth-child(2) { width: 15%; } 
 
 .loans-table input[type="text"] { width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; outline: none; }
 
@@ -94,7 +98,22 @@ input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; borde
 }
 .loans-table .balance-output { background-color: #fef2f2 !important; border-color: #fecaca !important; color: #b91c1c !important; font-weight: 700; }
 
-/* --- INTERFACCIA NUOVA COLONNA FINANZIERA --- */
-.fin-company { width: 100%; padding: 8px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 9.5pt; background-color: #ffffff; color: #334155; outline: none; }
-.fin-company option[value=""] { color: #94a3b8; font-style: italic; }
+/* --- STILI AZZURRI SPECIFICI PER LA PAGINA PERSONALE --- */
+.loans-table .wrapper-blue::before { color: #0284c7 !important; }
+.loans-table .pers-amount-input { 
+    width: 100% !important; 
+    padding: 9px 8px 9px 22px !important; 
+    font-size: 9.5pt; 
+    font-weight: 600; 
+    text-align: right !important; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 6px; 
+    outline: none; 
+    color: #0284c7 !important; 
+}
+.loans-table .balance-output-blue { background-color: #f0f9ff !important; border-color: #bae6fd !important; color: #0284c7 !important; font-weight: 700; }
+
+/* Interfaccia tendine */
+.fin-company, .pers-company { width: 100%; padding: 8px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 9.5pt; background-color: #ffffff; color: #334155; outline: none; }
+.fin-company option[value=""], .pers-company option[value=""] { color: #94a3b8; font-style: italic; }
 .section-total-wrapper { text-align: right; margin-top: 15px; font-weight: bold; font-size: 11pt; color: #b91c1c; }

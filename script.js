@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
     }
 
-    // MOTORE PAGINA PERSONALE CON MATEMATICA INVERSA SVILUPPATA
     function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         let finanziariaTrovata = "";
         let debitoResiduo = 0;
@@ -147,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
                         const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
                         
-                        // APPLICAZIONE MATEMATICA INVERSA STORICA: Dovuto - Uscite + Entrate
+                        // CORREZIONE MATEMATICA STORICA PERSONALE: Dovuto - Uscite (Rata) + Entrate
                         debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
                         
                         if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
@@ -181,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
             const campoDovuto = riga.querySelector('.loan-dovuto');
-            const campoUscites = riga.querySelector('.loan-uscite');
+            const campoUscite = riga.querySelector('.loan-uscite');
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
@@ -194,9 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscites.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
 
-            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -212,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoNome = riga.querySelector('.fin-name');
             const campoFinanziaria = riga.querySelector('.fin-company');
             const campoDovuto = riga.querySelector('.fin-dovuto');
-            const campoUscites = riga.querySelector('.fin-uscite');
+            const campoUscite = riga.querySelector('.fin-uscite');
             const campoEntrate = riga.querySelector('.fin-entrate');
             const campoRimanenza = riga.querySelector('.fin-rimanenza');
 
@@ -226,9 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscites.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
 
-            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -238,12 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const finTotaleEl = document.getElementById('page-fin-total');
         if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
 
-        // D) Tabella 3: PAGINA PERSONALE (MATEMATICA INVERSA CORRETTA)
+        // D) Tabella 3: PAGINA PERSONALE (CORRETTA AL 100%)
         let totaleRimanenzePersonale = 0;
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             const campoFinanziaria = riga.querySelector('.pers-company');
             const campoDovuto = riga.querySelector('.pers-dovuto');
-            const campoUscites = riga.querySelector('.pers-uscite');
+            const campoUscite = riga.querySelector('.pers-uscite'); // Corretto (prima aveva una s di troppo qui sotto)
             const campoEntrate = riga.querySelector('.pers-entrate');
             const campoRimanenza = riga.querySelector('.pers-rimanenza');
 
@@ -258,10 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
             
-            // LOGICA INVERSA APPLICATA: Il debito cala con le uscite (rate pagate!)
-            const rimanenza = dovuto - (parseFloat(campoUscites.value) || 0) + (parseFloat(campoEntrate.value) || 0);
+            // FORMULA PERSONALE BLINDATA: Il debito scende con il pagamento delle Uscite
+            const rimanenza = dovuto - (parseFloat(campoUscite.value) || 0) + (parseFloat(campoEntrate.value) || 0);
 
-            if (finAttuale === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
+            if (finAttuale === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -440,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ricalcolaTutto();
     }
 
-    if (dateInput) dateInput.addEventListener('change', caricaDatiData);
+    if (dateInput) dateInput.addEventListener('change', dateInput.value ? caricaDatiData : null);
 
     const saveBtn = document.getElementById('save-btn');
     const printBtn = document.getElementById('print-btn');

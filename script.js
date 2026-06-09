@@ -61,10 +61,17 @@ document.addEventListener('DOMContentLoaded', () => {
         riga.appendChild(wrapper);
     }
 
-    const righeFisseUscite = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 
-                              'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 
-                              'row-gestione-auto', 'row-varie-imprevisti'];
-    // CORRETTO: rimosso la "s" finale che bloccava il codice
+    // Elenco ID identico al 100% a quello presente nell'HTML della pagina 4
+    const righeFisseUscite = [
+        'row-spesa-alimenti', 
+        'row-spese-personali', 
+        'row-spese-ristoranti', 
+        'row-spese-salute', 
+        'row-spese-gatti', 
+        'row-gestione-casa', 
+        'row-gestione-auto', 
+        'row-varie-imprevisti'
+    ];
     righeFisseUscite.forEach(inizializzaRigaUscitaFissa);
 
     // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
@@ -186,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return haTrovatoStoria ? { finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
     }
 
-    // --- 4. LOGICA DEI CALCOLI AUTOMATICI E DEL TRASCINAMENTO ---
+    // --- 4. LOGICA DEI CALCOLI AUTOMATICI ---
     function ricalcolaTutto() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -399,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // SALVATAGGIO CORRETTO SENZA LA "S" EXTRA
+        // SALVATAGGIO BLINDATO: Se una riga non esiste per qualsiasi motivo, evita il crash della pagina
         righeFisseUscite.forEach(id => {
             const riga = document.getElementById(id);
             if (riga) {

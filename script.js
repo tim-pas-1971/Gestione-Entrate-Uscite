@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
     }
 
+    // MOTORE PAGINA PERSONALE CON MATEMATICA INVERSA SVILUPPATA
     function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         let finanziariaTrovata = "";
         let debitoResiduo = 0;
@@ -145,7 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
                         const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
-                        debitoResiduo = dovuto + (parseFloat(pers.uscite) || 0) - (parseFloat(pers.entrate) || 0);
+                        
+                        // APPLICAZIONE MATEMATICA INVERSA STORICA: Dovuto - Uscite + Entrate
+                        debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
                         
                         if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
                         haTrovatoStoria = true;
@@ -235,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const finTotaleEl = document.getElementById('page-fin-total');
         if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
 
-        // D) Tabella 3: PAGINA PERSONALE
+        // D) Tabella 3: PAGINA PERSONALE (MATEMATICA INVERSA CORRETTA)
         let totaleRimanenzePersonale = 0;
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             const campoFinanziaria = riga.querySelector('.pers-company');
@@ -254,7 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscites.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            
+            // LOGICA INVERSA APPLICATA: Il debito cala con le uscite (rate pagate!)
+            const rimanenza = dovuto - (parseFloat(campoUscites.value) || 0) + (parseFloat(campoEntrate.value) || 0);
 
             if (finAttuale === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
@@ -273,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Intercettazione eventi
+    // Intercettazione input dinamici
     document.addEventListener('input', (e) => {
         if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name, .pers-amount-input')) {
             ricalcolaTutto();
@@ -450,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // --- MOTORE NAVIGAZIONE SIDEBAR DEFINITIVO A 4 BOTTONI ---
+    // NAVIGAZIONE SIDEBAR
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const menuPersonale = document.getElementById('menu-personale');
@@ -468,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
     if (menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
-    if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuUsciteGenerali); }); // In stand-by punta momentaneamente alle entrate
+    if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuUsciteGenerali); });
 
     caricaDatiData();
 });

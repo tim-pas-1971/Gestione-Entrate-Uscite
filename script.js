@@ -99,9 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA ---
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA (AGGIORNATI PER CARICARE ANCHE LE NOTE STORICHE) ---
     function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
         let nomeTrovato = "";
+        let notaTrovata = "";
         let debitoResiduo = 0;
         let haTrovatoStoria = false;
 
@@ -113,24 +114,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dati = JSON.parse(datiSalvati);
                 if (dati.prestiti && dati.prestiti[indiceRiga]) {
                     const p = dati.prestiti[indiceRiga];
-                    if ((p.nome && p.nome.trim() !== "") || p.dovuto || p.uscite || p.entrate) {
+                    if ((p.nome && p.nome.trim() !== "") || p.nota || p.dovuto || p.uscite || p.entrate) {
                         if (!nomeTrovato && p.nome && p.nome.trim() !== "") nomeTrovato = p.nome;
+                        if (!notaTrovata && p.nota && p.nota.trim() !== "") notaTrovata = p.nota;
+                        
                         const saldoPrec = calcolaRimanenzaStoricaPrestiti(indiceRiga, dataStr);
                         const dovuto = p.dovuto !== "" ? (parseFloat(p.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
                         debitoResiduo = dovuto + (parseFloat(p.uscite) || 0) - (parseFloat(p.entrate) || 0);
+                        
                         if (!nomeTrovato && saldoPrec) nomeTrovato = saldoPrec.nome;
+                        if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
                         haTrovatoStoria = true;
                         break;
                     }
                 }
             }
         }
-        return haTrovatoStoria ? { nome: nomeTrovato, rimanenza: debitoResiduo } : null;
+        return haTrovatoStoria ? { nome: nomeTrovato, nota: notaTrovata, rimanenza: debitoResiduo } : null;
     }
 
     function calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataTarget) {
         let nomeTrovato = "";
         let finanziariaTrovata = "";
+        let notaTrovata = "";
         let debitoResiduo = 0;
         let haTrovatoStoria = false;
 
@@ -142,9 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dati = JSON.parse(datiSalvati);
                 if (dati.finanziamenti && dati.finanziamenti[indiceRiga]) {
                     const f = dati.finanziamenti[indiceRiga];
-                    if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.dovuto || f.uscite || f.entrate) {
+                    if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.nota || f.dovuto || f.uscite || f.entrate) {
                         if (!nomeTrovato && f.nome && f.nome.trim() !== "") nomeTrovato = f.nome;
                         if (!finanziariaTrovata && f.finanziaria) finanziariaTrovata = f.finanziaria;
+                        if (!notaTrovata && f.nota && f.nota.trim() !== "") notaTrovata = f.nota;
                         
                         const saldoPrec = calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataStr);
                         const dovuto = f.dovuto !== "" ? (parseFloat(f.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
@@ -152,17 +159,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (!nomeTrovato && saldoPrec) nomeTrovato = saldoPrec.nome;
                         if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
+                        if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
                         haTrovatoStoria = true;
                         break;
                     }
                 }
             }
         }
-        return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
+        return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
     }
 
     function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         let finanziariaTrovata = "";
+        let notaTrovata = "";
         let debitoResiduo = 0;
         let haTrovatoStoria = false;
 
@@ -174,24 +183,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dati = JSON.parse(datiSalvati);
                 if (dati.personale && dati.personale[indiceRiga]) {
                     const pers = dati.personale[indiceRiga];
-                    if (pers.finanziaria || pers.dovuto || pers.uscite || pers.entrate) {
+                    if (pers.finanziaria || pers.nota || pers.dovuto || pers.uscite || pers.entrate) {
                         if (!finanziariaTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
+                        if (!notaTrovata && pers.nota && pers.nota.trim() !== "") notaTrovata = pers.nota;
                         
                         const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
                         const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
                         debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
                         
                         if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
+                        if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
                         haTrovatoStoria = true;
                         break;
                     }
                 }
             }
         }
-        return haTrovatoStoria ? { finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
+        return haTrovatoStoria ? { finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
     }
 
-    // --- 4. LOGICA DEI CALCOLI AUTOMATICI ---
+    // --- 4. LOGICA DEI CALCOLI AUTOMATICI CON PLACEHOLDER SULLE NOTE ---
     function ricalcolaTutto() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -213,15 +224,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // B) Pagina 2: PRESTITI E FINANZIAMENTI (Familiari)
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
+            const campoNota = riga.querySelector('.loan-note');
             const campoDovuto = riga.querySelector('.loan-dovuto');
             const campoUscite = riga.querySelector('.loan-uscite');
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
             const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
+            
+            // Gestione ereditarietà se oggi non ci sono ancora salvataggi reali
             if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoNome.value = storiaPassata.nome;
             }
+            
+            // AGGIORNAMENTO: Se esiste una nota passata, viene mostrata come placeholder
+            if (storiaPassata && storiaPassata.nota) {
+                campoNota.placeholder = storiaPassata.nota;
+            } else {
+                campoNota.placeholder = "Note libere...";
+            }
+
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
@@ -243,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.fin-name');
             const campoFinanziaria = riga.querySelector('.fin-company');
+            const campoNota = riga.querySelector('.fin-note');
             const campoDovuto = riga.querySelector('.fin-dovuto');
             const campoUscite = riga.querySelector('.fin-uscite');
             const campoEntrate = riga.querySelector('.fin-entrate');
@@ -253,6 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 campoNome.value = storiaPassata.nome;
                 campoFinanziaria.value = storiaPassata.finanziaria || "";
             }
+            
+            // AGGIORNAMENTO: Placeholder nota per finanziamenti familiari
+            if (storiaPassata && storiaPassata.nota) {
+                campoNota.placeholder = storiaPassata.nota;
+            } else {
+                campoNota.placeholder = "Note libere...";
+            }
+
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
@@ -282,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             const campoFinanziaria = riga.querySelector('.pers-company');
+            const campoNota = riga.querySelector('.pers-note');
             const campoDovuto = riga.querySelector('.pers-dovuto');
             const campoUscite = riga.querySelector('.pers-uscite'); 
             const campoEntrate = riga.querySelector('.pers-entrate');
@@ -291,6 +323,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!haDatiSalvatiOggi && campoFinanziaria.value === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoFinanziaria.value = storiaPassata.finanziaria || "";
             }
+            
+            // AGGIORNAMENTO: Placeholder nota per finanziamenti personali
+            if (storiaPassata && storiaPassata.nota) {
+                campoNota.placeholder = storiaPassata.nota;
+            } else {
+                campoNota.placeholder = "Note libere...";
+            }
+
             const finAttuale = campoFinanziaria ? campoFinanziaria.value : "";
             let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
@@ -340,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('input', (e) => {
-        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name, .pers-amount-input, .amount-input-ocra')) {
+        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .loan-note, .fin-amount-input, .fin-name, .fin-note, .pers-amount-input, .pers-note, .amount-input-ocra')) {
             ricalcolaTutto();
         }
     });
@@ -382,9 +422,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
                 if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
             }
+            // Salvataggio della nota esplicita (se inserita) o di quella ereditata nel segnaposto
+            let testoNota = riga.querySelector('.loan-note').value;
+            if (testoNota === "") {
+                const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.nota) testoNota = storiaPassata.nota;
+            }
+            
             datiDaSalvare.prestiti.push({
                 nome: riga.querySelector('.loan-name').value,
-                nota: riga.querySelector('.loan-note').value,
+                nota: testoNota,
                 dovuto: campoDovuto, 
                 uscite: riga.querySelector('.loan-uscite').value,
                 entrate: riga.querySelector('.loan-entrate').value
@@ -397,10 +444,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
                 if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
             }
+            let testoNota = riga.querySelector('.fin-note').value;
+            if (testoNota === "") {
+                const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.nota) testoNota = storiaPassata.nota;
+            }
+            
             datiDaSalvare.finanziamenti.push({
                 nome: riga.querySelector('.fin-name').value,
                 finanziaria: riga.querySelector('.fin-company').value,
-                nota: riga.querySelector('.fin-note').value,
+                nota: testoNota,
                 dovuto: campoDovuto, 
                 uscite: riga.querySelector('.fin-uscite').value,
                 entrate: riga.querySelector('.fin-entrate').value
@@ -413,9 +466,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
                 if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
             }
+            let testoNota = riga.querySelector('.pers-note').value;
+            if (testoNota === "") {
+                const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.nota) testoNota = storiaPassata.nota;
+            }
+            
             datiDaSalvare.personale.push({
                 finanziaria: riga.querySelector('.pers-company').value,
-                nota: riga.querySelector('.pers-note').value,
+                nota: testoNota,
                 dovuto: campoDovuto, 
                 uscite: riga.querySelector('.pers-uscite').value,
                 entrate: riga.querySelector('.pers-entrate').value

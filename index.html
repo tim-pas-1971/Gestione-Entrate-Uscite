@@ -20,6 +20,13 @@
                 <a href="#" class="menu-item" style="--item-color: #e67e22;">📈 Rapporto Entrate / Uscite ann.</a>
                 <a href="#" class="menu-item" style="--item-color: #2980b9;">🔍 Ricerche</a>
             </nav>
+            
+            <!-- TASTI DI EXPORT E IMPORT IN FONDO ALLA SIDEBAR COME DA IMMAGINE -->
+            <div class="sidebar-backup-zone" style="padding: 15px; margin-top: auto; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #e2e8f0;">
+                <button id="export-btn" style="width: 100%; padding: 10px; background: transparent; border: 1px solid #2563eb; color: #2563eb; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">ESPORTA JSON</button>
+                <button id="import-btn" style="width: 100%; padding: 10px; background: transparent; border: 1px solid #475569; color: #475569; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">IMPORTA JSON</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
         </aside>
 
         <main class="main-content">
@@ -395,6 +402,7 @@
         </main>
     </div>
 
-    <script src="script.js?v=4"></script>
+    <!-- Aggiornata la query-string del file javascript -->
+    <script src="script.js?v=6"></script>
 </body>
 </html>

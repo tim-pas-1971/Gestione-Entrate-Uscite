@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
     righeFisseEntrate.forEach(inizializzaRigaFissa);
 
-    // FUNZIONE USCITE MODIFICATA: SENZA IL CAMPO NOTE
+    // FUNZIONE USCITE: SOLO TENDINA MESE E CIFRA (SENZA NOTE)
     function inizializzaRigaUscitaFissa(id) {
         const riga = document.getElementById(id);
         if (!riga) return;
@@ -58,13 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.innerHTML = '<input type="number" step="0.01" class="amount-input-ocra" placeholder="0.00">';
 
         riga.appendChild(select);
-        riga.appendChild(wrapper); // Attacchiamo direttamente il wrapper numerico dopo il mese
+        riga.appendChild(wrapper);
     }
 
     const righeFisseUscite = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 
                               'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 
                               'row-gestione-auto', 'row-varie-imprevisti'];
-    righeFisseUscites.forEach(inizializzaRigaUscitaFissa);
+    // CORRETTO: rimosso la "s" finale che bloccava il codice
+    righeFisseUscite.forEach(inizializzaRigaUscitaFissa);
 
     // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
     const dateInput = document.getElementById('global-date');
@@ -293,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const persTotaleEl = document.getElementById('page-personale-total');
         if (persTotaleEl) persTotaleEl.textContent = `€ ${totaleRimanenzePersonale.toFixed(2)}`;
 
-        // E) Tabella 4: USCITE GENERALI MENSILI (Senza note)
+        // E) Tabella 4: USCITE GENERALI MENSILI
         let totaleUsciteGenerali = 0;
         document.querySelectorAll('#page-uscite .amount-input-ocra').forEach(input => {
             totaleUsciteGenerali += parseFloat(input.value) || 0;
@@ -398,8 +399,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        const righeFisseUscites = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 'row-gestione-auto', 'row-varie-imprevisti'];
-        righeFisseUscites.forEach(id => {
+        // SALVATAGGIO CORRETTO SENZA LA "S" EXTRA
+        righeFisseUscite.forEach(id => {
             const riga = document.getElementById(id);
             if (riga) {
                 datiDaSalvare.uscite[id] = {
@@ -484,8 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (dati.uscite) {
-                const righeFisseUscites = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 'row-gestione-auto', 'row-varie-imprevisti'];
-                righeFisseUscites.forEach(id => {
+                righeFisseUscite.forEach(id => {
                     const riga = document.getElementById(id);
                     if (riga && dati.uscite[id]) {
                         if (riga.querySelector('select')) riga.querySelector('select').value = dati.uscite[id].mese;
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // --- NAVIGAZIONE SIDEBAR CORRETTA AL 100% ---
+    // --- NAVIGAZIONE SIDEBAR ---
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const menuPersonale = document.getElementById('menu-personale');
@@ -531,8 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
     if (menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
-    
-    // Ora punta a page-uscite, sbloccando la navigazione!
     if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-uscite', menuUsciteGenerali); });
 
     caricaDatiData();

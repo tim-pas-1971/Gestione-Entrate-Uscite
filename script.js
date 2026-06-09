@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
     }
 
-    // NUOVO MOTORE PER LA PAGINA PERSONALE (Cerca basandosi esclusivamente sulla riga e sulla finanziaria)
     function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         let finanziariaTrovata = "";
         let debitoResiduo = 0;
@@ -179,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
             const campoDovuto = riga.querySelector('.loan-dovuto');
-            const campoUscite = riga.querySelector('.loan-uscite');
+            const campoUscites = riga.querySelector('.loan-uscite');
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
@@ -192,9 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const rimanenza = dovuto + (parseFloat(campoUscites.value) || 0) - (parseFloat(campoEntrate.value) || 0);
 
-            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -210,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoNome = riga.querySelector('.fin-name');
             const campoFinanziaria = riga.querySelector('.fin-company');
             const campoDovuto = riga.querySelector('.fin-dovuto');
-            const campoUscite = riga.querySelector('.fin-uscite');
+            const campoUscites = riga.querySelector('.fin-uscite');
             const campoEntrate = riga.querySelector('.fin-entrate');
             const campoRimanenza = riga.querySelector('.fin-rimanenza');
 
@@ -224,9 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const rimanenza = dovuto + (parseFloat(campoUscites.value) || 0) - (parseFloat(campoEntrate.value) || 0);
 
-            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -236,12 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const finTotaleEl = document.getElementById('page-fin-total');
         if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
 
-        // D) Tabella 3: NUOVA PAGINA PERSONALE (Calcoli e trascinamento azzurro)
+        // D) Tabella 3: PAGINA PERSONALE
         let totaleRimanenzePersonale = 0;
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             const campoFinanziaria = riga.querySelector('.pers-company');
             const campoDovuto = riga.querySelector('.pers-dovuto');
-            const campoUscite = riga.querySelector('.pers-uscite');
+            const campoUscites = riga.querySelector('.pers-uscite');
             const campoEntrate = riga.querySelector('.pers-entrate');
             const campoRimanenza = riga.querySelector('.pers-rimanenza');
 
@@ -255,9 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const rimanenza = dovuto + (parseFloat(campoUscites.value) || 0) - (parseFloat(campoEntrate.value) || 0);
 
-            if (finAttuale === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+            if (finAttuale === "" && dovuto === 0 && campoUscites.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
@@ -267,14 +266,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const persTotaleEl = document.getElementById('page-personale-total');
         if (persTotaleEl) persTotaleEl.textContent = `€ ${totaleRimanenzePersonale.toFixed(2)}`;
 
-        // E) Totale Giornata Unificato Completo
+        // E) Totale Giornata Unificato
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
             dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti + totaleRimanenzePersonale).toFixed(2)}`;
         }
     }
 
-    // Intercettazione input dinamici
+    // Intercettazione eventi
     document.addEventListener('input', (e) => {
         if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name, .pers-amount-input')) {
             ricalcolaTutto();
@@ -343,7 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Salvataggio specifico pagina personale
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             let campoDovuto = riga.querySelector('.pers-dovuto').value;
             if (campoDovuto === "") {
@@ -452,10 +450,11 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // NAVIGAZIONE SIDEBAR AGGIORNATA
+    // --- MOTORE NAVIGAZIONE SIDEBAR DEFINITIVO A 4 BOTTONI ---
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const menuPersonale = document.getElementById('menu-personale');
+    const menuUsciteGenerali = document.getElementById('menu-uscite-generali');
     
     function cambiaPagina(idPagina, pulsanteSelezionato) {
         document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
@@ -469,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
     if (menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
+    if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuUsciteGenerali); }); // In stand-by punta momentaneamente alle entrate
 
     caricaDatiData();
 });

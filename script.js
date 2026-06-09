@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA (AGGIORNATI PER CARICARE ANCHE LE NOTE STORICHE) ---
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA ---
     function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
         let nomeTrovato = "";
         let notaTrovata = "";
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return haTrovatoStoria ? { finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
     }
 
-    // --- 4. LOGICA DEI CALCOLI AUTOMATICI CON PLACEHOLDER SULLE NOTE ---
+    // --- 4. LOGICA DEI CALCOLI AUTOMATICI CON SCRITTURA REALE DELLE NOTE ---
     function ricalcolaTutto() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
@@ -232,16 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
             
-            // Gestione ereditarietà se oggi non ci sono ancora salvataggi reali
-            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
-                campoNome.value = storiaPassata.nome;
-            }
-            
-            // AGGIORNAMENTO: Se esiste una nota passata, viene mostrata come placeholder
-            if (storiaPassata && storiaPassata.nota) {
-                campoNota.placeholder = storiaPassata.nota;
-            } else {
-                campoNota.placeholder = "Note libere...";
+            // CORREZIONE: Scrittura reale del valore sia per il Nome che per la Nota se oggi è una giornata vergine
+            if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
+                if (campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
+                if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
@@ -272,16 +266,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoRimanenza = riga.querySelector('.fin-rimanenza');
 
             const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
-            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
-                campoNome.value = storiaPassata.nome;
-                campoFinanziaria.value = storiaPassata.finanziaria || "";
-            }
             
-            // AGGIORNAMENTO: Placeholder nota per finanziamenti familiari
-            if (storiaPassata && storiaPassata.nota) {
-                campoNota.placeholder = storiaPassata.nota;
-            } else {
-                campoNota.placeholder = "Note libere...";
+            // CORREZIONE: Scrittura reale della nota per finanziamenti di terzi
+            if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
+                if (campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
+                if (campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
+                if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
@@ -320,15 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoRimanenza = riga.querySelector('.pers-rimanenza');
 
             const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
-            if (!haDatiSalvatiOggi && campoFinanziaria.value === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
-                campoFinanziaria.value = storiaPassata.finanziaria || "";
-            }
             
-            // AGGIORNAMENTO: Placeholder nota per finanziamenti personali
-            if (storiaPassata && storiaPassata.nota) {
-                campoNota.placeholder = storiaPassata.nota;
-            } else {
-                campoNota.placeholder = "Note libere...";
+            // CORREZIONE: Scrittura reale della nota per finanziamenti personali
+            if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
+                if (campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
+                if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
             }
 
             const finAttuale = campoFinanziaria ? campoFinanziaria.value : "";
@@ -422,7 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
                 if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
             }
-            // Salvataggio della nota esplicita (se inserita) o di quella ereditata nel segnaposto
             let testoNota = riga.querySelector('.loan-note').value;
             if (testoNota === "") {
                 const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);

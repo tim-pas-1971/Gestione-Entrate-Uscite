@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE (Con - Periodo - in cima) ---
+    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE ---
     const mesi = ["- Periodo -", "GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. RICERCA STORICA CONTINUA PER RIGA ---
-    function calcolaRimanenzaStoricaUscita(indiceRiga, dataTarget) {
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA (PRESTITI E FINANZIAMENTI) ---
+    function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
         let nomeTrovato = "";
         let debitoResiduo = 0;
         let haTrovatoStoria = false;
@@ -79,34 +79,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dati = JSON.parse(datiSalvati);
                 if (dati.prestiti && dati.prestiti[indiceRiga]) {
                     const p = dati.prestiti[indiceRiga];
-                    
                     if ((p.nome && p.nome.trim() !== "") || p.dovuto || p.uscite || p.entrate) {
-                        if (!nomeTrovato && p.nome && p.nome.trim() !== "") {
-                            nomeTrovato = p.nome;
-                        }
-
-                        const saldoEreditatoPrecedente = calcolaRimanenzaStoricaUscita(indiceRiga, dataStr);
-                        
-                        const dovuto = p.dovuto !== "" ? (parseFloat(p.dovuto) || 0) : (saldoEreditatoPrecedente ? saldoEreditatoPrecedente.rimanenza : 0);
-                        const uscite = parseFloat(p.uscite) || 0;
-                        const entrate = parseFloat(p.entrate) || 0;
-                        
-                        debitoResiduo = dovuto + uscite - entrate;
-                        if (!nomeTrovato && saldoEreditatoPrecedente) {
-                            nomeTrovato = saldoEreditatoPrecedente.nome;
-                        }
-                        
+                        if (!nomeTrovato && p.nome && p.nome.trim() !== "") nomeTrovato = p.nome;
+                        const saldoPrec = calcolaRimanenzaStoricaPrestiti(indiceRiga, dataStr);
+                        const dovuto = p.dovuto !== "" ? (parseFloat(p.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
+                        debitoResiduo = dovuto + (parseFloat(p.uscite) || 0) - (parseFloat(p.entrate) || 0);
+                        if (!nomeTrovato && saldoPrec) nomeTrovato = saldoPrec.nome;
                         haTrovatoStoria = true;
                         break;
                     }
                 }
             }
         }
+        return haTrovatoStoria ? { nome: nomeTrovato, rimanenza: debitoResiduo } : null;
+    }
 
-        if (haTrovatoStoria) {
-            return { nome: nomeTrovato, rimanenza: debitoResiduo };
+    function calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataTarget) {
+        let nomeTrovato = "";
+        let finanziariaTrovata = "";
+        let debitoResiduo = 0;
+        let haTrovatoStoria = false;
+
+        for (let i = 1; i <= 365; i++) {
+            const dataStr = sottraiGiorni(dataTarget, i);
+            const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
+
+            if (datiSalvati) {
+                const dati = JSON.parse(datiSalvati);
+                if (dati.finanziamenti && dati.finanziamenti[indiceRiga]) {
+                    const f = dati.finanziamenti[indiceRiga];
+                    if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.dovuto || f.uscite || f.entrate) {
+                        if (!nomeTrovato && f.nome && f.nome.trim() !== "") nomeTrovato = f.nome;
+                        if (!finanziariaTrovata && f.finanziaria) finanziariaTrovata = f.finanziaria;
+                        
+                        const saldoPrec = calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataStr);
+                        const dovuto = f.dovuto !== "" ? (parseFloat(f.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
+                        debitoResiduo = dovuto + (parseFloat(f.uscite) || 0) - (parseFloat(f.entrate) || 0);
+                        
+                        if (!nomeTrovato && saldoPrec) nomeTrovato = saldoPrec.nome;
+                        if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
+                        haTrovatoStoria = true;
+                        break;
+                    }
+                }
+            }
         }
-        return null;
+        return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
     }
 
     // --- 4. LOGICA DEI CALCOLI AUTOMATICI E DEL TRASCINAMENTO ---
@@ -118,22 +136,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let totaleEntrate = 0;
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
             totaleEntrate += parseFloat(input.value) || 0;
-            if (input.value === "") {
-                const rigaPadre = input.closest('.input-row');
-                if (rigaPadre) {
-                    const selectMese = rigaPadre.querySelector('.period-select');
-                    if (selectMese) selectMese.value = "";
-                }
-            }
         });
         const entrateTotaleEl = document.getElementById('page-entrate-total');
         if (entrateTotaleEl) entrateTotaleEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
 
-        // B) Conteggio Storico ed Estratto Conto Pagina Prestiti
-        let totaleRimanenzePrestiti = 0;
         const datiSalvatiDelGiorno = localStorage.getItem(`dati_${dataSelezionata}`);
         const haDatiSalvatiOggi = datiSalvatiDelGiorno !== null;
 
+        // B) Tabella 1: PRESTITI
+        let totaleRimanenzePrestiti = 0;
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
             const campoDovuto = riga.querySelector('.loan-dovuto');
@@ -141,65 +152,90 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
-            const storiaPassata = calcolaRimanenzaStoricaUscita(index, dataSelezionata);
+            const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
             
-            // APPLICAZIONE CORREZIONE TIZIANA: Ereditiamo il nome se la storia passata esiste 
-            // ed è DIVERSA DA ZERO (quindi sia positiva che negativa!)
             if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoNome.value = storiaPassata.nome;
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
-            let saldoEreditato = 0;
+            let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
 
-            if (storiaPassata && storiaPassata.rimanenza !== 0) {
-                saldoEreditato = storiaPassata.rimanenza;
-            }
+            campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
-            if (saldoEreditato !== 0 && campoDovuto.value === "") {
-                campoDovuto.placeholder = saldoEreditato.toFixed(2);
-            } else {
-                campoDovuto.placeholder = "0.00";
-            }
-
-            // Formula Matematica di Riga
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const uscite = parseFloat(campoUscite.value) || 0;
-            const entrate = parseFloat(campoEntrate.value) || 0;
+            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
 
-            const rimanenza = dovuto + uscite - entrate;
-
-            if (nomeAttuale.trim() === "" && dovuto === 0 && uscite === 0 && entrate === 0) {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
-                // Il totale di pagina somma i saldi reali (se positivi pesano sul totale)
                 totaleRimanenzePrestiti += rimanenza > 0 ? rimanenza : 0;
             }
         });
-
         const loansTotaleEl = document.getElementById('page-loans-total');
         if (loansTotaleEl) loansTotaleEl.textContent = `€ ${totaleRimanenzePrestiti.toFixed(2)}`;
 
-        // C) Totale Giornata Unificato
+        // C) Tabella 2: FINANZIAMENTI (Nuova Logica Parallelizzata)
+        let totaleRimanenzeFinanziamenti = 0;
+        document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
+            const campoNome = riga.querySelector('.fin-name');
+            const campoFinanziaria = riga.querySelector('.fin-company');
+            const campoDovuto = riga.querySelector('.fin-dovuto');
+            const campoUscite = riga.querySelector('.fin-uscite');
+            const campoEntrate = riga.querySelector('.fin-entrate');
+            const campoRimanenza = riga.querySelector('.fin-rimanenza');
+
+            const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
+            
+            if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
+                campoNome.value = storiaPassata.nome;
+                campoFinanziaria.value = storiaPassata.finanziaria || "";
+            }
+
+            const nomeAttuale = campoNome ? campoNome.value : "";
+            let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
+
+            campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
+
+            const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
+            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+
+            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+                if (campoRimanenza) campoRimanenza.value = "0.00";
+            } else {
+                if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
+                totaleRimanenzeFinanziamenti += rimanenza > 0 ? rimanenza : 0;
+            }
+        });
+        const finTotaleEl = document.getElementById('page-fin-total');
+        if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
+
+        // D) Totale Giornata Unificato (Somma Entrate + Prestiti + Finanziamenti)
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
-            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti).toFixed(2)}`;
+            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti).toFixed(2)}`;
         }
     }
 
+    // Intercettazione input e cambi di selezione per ricalcoli immediati
     document.addEventListener('input', (e) => {
-        if (e.target.classList.contains('amount-input') || e.target.classList.contains('loan-amount-input') || e.target.classList.contains('loan-name')) {
+        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name')) {
+            ricalcolaTutto();
+        }
+    });
+    document.addEventListener('change', (e) => {
+        if (e.target.matches('.fin-company')) {
             ricalcolaTutto();
         }
     });
 
-    // --- 5. MOTORE SALVATAGGIO ---
+    // --- 5. MOTORE SALVATAGGIO COMPLETO ---
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [] };
+        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [], finanziamenti: [] };
 
         righeFisse.forEach(id => {
             const riga = document.getElementById(id);
@@ -221,22 +257,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
-            const campoNome = riga.querySelector('.loan-name').value;
             let campoDovuto = riga.querySelector('.loan-dovuto').value;
-            
             if (campoDovuto === "") {
-                const storiaPassata = calcolaRimanenzaStoricaUscita(index, dataSelezionata);
-                if (storiaPassata && storiaPassata.rimanenza !== 0) {
-                    campoDovuto = storiaPassata.rimanenza.toString();
-                }
+                const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
             }
-
             datiDaSalvare.prestiti.push({
-                nome: campoNome,
+                nome: riga.querySelector('.loan-name').value,
                 nota: riga.querySelector('.loan-note').value,
                 dovuto: campoDovuto, 
                 uscite: riga.querySelector('.loan-uscite').value,
                 entrate: riga.querySelector('.loan-entrate').value
+            });
+        });
+
+        document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
+            let campoDovuto = riga.querySelector('.fin-dovuto').value;
+            if (campoDovuto === "") {
+                const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
+            }
+            datiDaSalvare.finanziamenti.push({
+                nome: riga.querySelector('.fin-name').value,
+                finanziaria: riga.querySelector('.fin-company').value,
+                nota: riga.querySelector('.fin-note').value,
+                dovuto: campoDovuto, 
+                uscite: riga.querySelector('.fin-uscite').value,
+                entrate: riga.querySelector('.fin-entrate').value
             });
         });
 
@@ -256,42 +303,57 @@ document.addEventListener('DOMContentLoaded', () => {
         if (datiSalvati) {
             const dati = JSON.parse(datiSalvati);
 
-            righeFisse.forEach(id => {
-                const riga = document.getElementById(id);
-                if (riga && dati.stipendi && dati.stipendi[id]) {
-                    if (riga.querySelector('select')) riga.querySelector('select').value = dati.stipendi[id].mese;
-                    if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.stipendi[id].nota;
-                    if (riga.querySelector('.amount-input')) riga.querySelector('.amount-input').value = dati.stipendi[id].cifra;
-                }
-            });
+            if (dati.stipendi) {
+                righeFisse.forEach(id => {
+                    const riga = document.getElementById(id);
+                    if (riga && dati.stipendi[id]) {
+                        if (riga.querySelector('select')) riga.querySelector('select').value = dati.stipendi[id].mese;
+                        if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.stipendi[id].nota;
+                        if (riga.querySelector('.amount-input')) riga.querySelector('.amount-input').value = dati.stipendi[id].cifra;
+                    }
+                });
+            }
 
-            const righeVarie = document.querySelectorAll('#page-entrate .row-varie');
-            righeVarie.forEach((riga, index) => {
-                if (dati.varie && dati.varie[index]) {
-                    if (riga.querySelector('select')) riga.querySelector('select').value = dati.varie[index].categoria;
-                    if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.varie[index].nota;
-                    if (riga.querySelector('.amount-input')) riga.querySelector('.amount-input').value = dati.varie[index].cifra;
-                }
-            });
+            if (dati.varie) {
+                document.querySelectorAll('#page-entrate .row-varie').forEach((riga, index) => {
+                    if (dati.varie[index]) {
+                        if (riga.querySelector('select')) riga.querySelector('select').value = dati.varie[index].categoria;
+                        if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.varie[index].nota;
+                        if (riga.querySelector('.amount-input')) riga.querySelector('.amount-input').value = dati.varie[index].cifra;
+                    }
+                });
+            }
 
-            const righeTabellaPrestiti = document.querySelectorAll('#loans-table-body .loan-row');
-            righeTabellaPrestiti.forEach((riga, index) => {
-                if (dati.prestiti && dati.prestiti[index]) {
-                    riga.querySelector('.loan-name').value = dati.prestiti[index].nome || "";
-                    riga.querySelector('.loan-note').value = dati.prestiti[index].nota || "";
-                    riga.querySelector('.loan-dovuto').value = dati.prestiti[index].dovuto || "";
-                    riga.querySelector('.loan-uscite').value = dati.prestiti[index].uscite || "";
-                    riga.querySelector('.loan-entrate').value = dati.prestiti[index].entrate || "";
-                }
-            });
+            if (dati.prestiti) {
+                document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
+                    if (dati.prestiti[index]) {
+                        riga.querySelector('.loan-name').value = dati.prestiti[index].nome || "";
+                        riga.querySelector('.loan-note').value = dati.prestiti[index].nota || "";
+                        riga.querySelector('.loan-dovuto').value = dati.prestiti[index].dovuto || "";
+                        riga.querySelector('.loan-uscite').value = dati.prestiti[index].uscite || "";
+                        riga.querySelector('.loan-entrate').value = dati.prestiti[index].entrate || "";
+                    }
+                });
+            }
+
+            if (dati.finanziamenti) {
+                document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
+                    if (dati.finanziamenti[index]) {
+                        riga.querySelector('.fin-name').value = dati.finanziamenti[index].nome || "";
+                        riga.querySelector('.fin-company').value = dati.finanziamenti[index].finanziaria || "";
+                        riga.querySelector('.fin-note').value = dati.finanziamenti[index].nota || "";
+                        riga.querySelector('.fin-dovuto').value = dati.finanziamenti[index].dovuto || "";
+                        riga.querySelector('.fin-uscite').value = dati.finanziamenti[index].uscite || "";
+                        riga.querySelector('.fin-entrate').value = dati.finanziamenti[index].entrate || "";
+                    }
+                });
+            }
         }
 
         ricalcolaTutto();
     }
 
-    if (dateInput) {
-        dateInput.addEventListener('change', caricaDatiData);
-    }
+    if (dateInput) dateInput.addEventListener('change', caricaDatiData);
 
     const saveBtn = document.getElementById('save-btn');
     const printBtn = document.getElementById('print-btn');
@@ -302,9 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Dati del giorno ${dateInput.value} salvati con successo!`);
         });
     }
-    if (printBtn) {
-        printBtn.addEventListener('click', () => { window.print(); });
-    }
+    if (printBtn) printBtn.addEventListener('click', () => { window.print(); });
 
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');

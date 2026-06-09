@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         riga.appendChild(wrapper);
     }
 
-    // Elenco ID identico al 100% a quello presente nell'HTML della pagina 4
     const righeFisseUscite = [
         'row-spesa-alimenti', 
         'row-spese-personali', 
@@ -72,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'row-gestione-auto', 
         'row-varie-imprevisti'
     ];
+    
+    // RIGA 67 CORRETTA: righeFisseUscite (senza la "s" finale!)
     righeFisseUscite.forEach(inizializzaRigaUscitaFissa);
 
     // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
@@ -406,7 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // SALVATAGGIO BLINDATO: Se una riga non esiste per qualsiasi motivo, evita il crash della pagina
         righeFisseUscite.forEach(id => {
             const riga = document.getElementById(id);
             if (riga) {

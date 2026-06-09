@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA (PRESTITI E FINANZIAMENTI) ---
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA (TABELLA 1, 2 E 3) ---
     function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
         let nomeTrovato = "";
         let debitoResiduo = 0;
@@ -127,6 +127,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
     }
 
+    // NUOVO MOTORE PER LA PAGINA PERSONALE (Cerca basandosi esclusivamente sulla riga e sulla finanziaria)
+    function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
+        let finanziariaTrovata = "";
+        let debitoResiduo = 0;
+        let haTrovatoStoria = false;
+
+        for (let i = 1; i <= 365; i++) {
+            const dataStr = sottraiGiorni(dataTarget, i);
+            const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
+
+            if (datiSalvati) {
+                const dati = JSON.parse(datiSalvati);
+                if (dati.personale && dati.personale[indiceRiga]) {
+                    const pers = dati.personale[indiceRiga];
+                    if (pers.finanziaria || pers.dovuto || pers.uscite || pers.entrate) {
+                        if (!finanziariaTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
+                        
+                        const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
+                        const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
+                        debitoResiduo = dovuto + (parseFloat(pers.uscite) || 0) - (parseFloat(pers.entrate) || 0);
+                        
+                        if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
+                        haTrovatoStoria = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return haTrovatoStoria ? { finanziaria: finanziariaTrovata, rimanenza: debitoResiduo } : null;
+    }
+
     // --- 4. LOGICA DEI CALCOLI AUTOMATICI E DEL TRASCINAMENTO ---
     function ricalcolaTutto() {
         const dataSelezionata = dateInput.value;
@@ -153,14 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
             const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
-            
             if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoNome.value = storiaPassata.nome;
             }
-
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
-
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
@@ -176,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loansTotaleEl = document.getElementById('page-loans-total');
         if (loansTotaleEl) loansTotaleEl.textContent = `€ ${totaleRimanenzePrestiti.toFixed(2)}`;
 
-        // C) Tabella 2: FINANZIAMENTI (Nuova Logica Parallelizzata)
+        // C) Tabella 2: FINANZIAMENTI
         let totaleRimanenzeFinanziamenti = 0;
         document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.fin-name');
@@ -187,15 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoRimanenza = riga.querySelector('.fin-rimanenza');
 
             const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
-            
             if (!haDatiSalvatiOggi && campoNome.value.trim() === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoNome.value = storiaPassata.nome;
                 campoFinanziaria.value = storiaPassata.finanziaria || "";
             }
-
             const nomeAttuale = campoNome ? campoNome.value : "";
             let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
-
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
@@ -211,31 +236,62 @@ document.addEventListener('DOMContentLoaded', () => {
         const finTotaleEl = document.getElementById('page-fin-total');
         if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
 
-        // D) Totale Giornata Unificato (Somma Entrate + Prestiti + Finanziamenti)
+        // D) Tabella 3: NUOVA PAGINA PERSONALE (Calcoli e trascinamento azzurro)
+        let totaleRimanenzePersonale = 0;
+        document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
+            const campoFinanziaria = riga.querySelector('.pers-company');
+            const campoDovuto = riga.querySelector('.pers-dovuto');
+            const campoUscite = riga.querySelector('.pers-uscite');
+            const campoEntrate = riga.querySelector('.pers-entrate');
+            const campoRimanenza = riga.querySelector('.pers-rimanenza');
+
+            const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
+            if (!haDatiSalvatiOggi && campoFinanziaria.value === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
+                campoFinanziaria.value = storiaPassata.finanziaria || "";
+            }
+            
+            const finAttuale = campoFinanziaria ? campoFinanziaria.value : "";
+            let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
+            campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
+
+            const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
+            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+
+            if (finAttuale === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+                if (campoRimanenza) campoRimanenza.value = "0.00";
+            } else {
+                if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
+                totaleRimanenzePersonale += rimanenza > 0 ? rimanenza : 0;
+            }
+        });
+        const persTotaleEl = document.getElementById('page-personale-total');
+        if (persTotaleEl) persTotaleEl.textContent = `€ ${totaleRimanenzePersonale.toFixed(2)}`;
+
+        // E) Totale Giornata Unificato Completo
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
-            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti).toFixed(2)}`;
+            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti + totaleRimanenzePersonale).toFixed(2)}`;
         }
     }
 
-    // Intercettazione input e cambi di selezione per ricalcoli immediati
+    // Intercettazione input dinamici
     document.addEventListener('input', (e) => {
-        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name')) {
+        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name, .pers-amount-input')) {
             ricalcolaTutto();
         }
     });
     document.addEventListener('change', (e) => {
-        if (e.target.matches('.fin-company')) {
+        if (e.target.matches('.fin-company, .pers-company')) {
             ricalcolaTutto();
         }
     });
 
-    // --- 5. MOTORE SALVATAGGIO COMPLETO ---
+    // --- 5. MOTORE SALVATAGGIO CENTRALIZZATO ---
     function salvaDatiCorrenti() {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [], finanziamenti: [] };
+        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [], finanziamenti: [], personale: [] };
 
         righeFisse.forEach(id => {
             const riga = document.getElementById(id);
@@ -284,6 +340,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 dovuto: campoDovuto, 
                 uscite: riga.querySelector('.fin-uscite').value,
                 entrate: riga.querySelector('.fin-entrate').value
+            });
+        });
+
+        // Salvataggio specifico pagina personale
+        document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
+            let campoDovuto = riga.querySelector('.pers-dovuto').value;
+            if (campoDovuto === "") {
+                const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
+                if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
+            }
+            datiDaSalvare.personale.push({
+                finanziaria: riga.querySelector('.pers-company').value,
+                nota: riga.querySelector('.pers-note').value,
+                dovuto: campoDovuto, 
+                uscite: riga.querySelector('.pers-uscite').value,
+                entrate: riga.querySelector('.pers-entrate').value
             });
         });
 
@@ -348,6 +420,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+
+            if (dati.personale) {
+                document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
+                    if (dati.personale[index]) {
+                        riga.querySelector('.pers-company').value = dati.personale[index].finanziaria || "";
+                        riga.querySelector('.pers-note').value = dati.personale[index].nota || "";
+                        riga.querySelector('.pers-dovuto').value = dati.personale[index].dovuto || "";
+                        riga.querySelector('.pers-uscite').value = dati.personale[index].uscite || "";
+                        riga.querySelector('.pers-entrate').value = dati.personale[index].entrate || "";
+                    }
+                });
+            }
         }
 
         ricalcolaTutto();
@@ -364,10 +448,14 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Dati del giorno ${dateInput.value} salvati con successo!`);
         });
     }
-    if (printBtn) printBtn.addEventListener('click', () => { window.print(); });
+    if (printBtn) {
+        printBtn.addEventListener('click', () => { window.print(); });
+    }
 
+    // NAVIGAZIONE SIDEBAR AGGIORNATA
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
+    const menuPersonale = document.getElementById('menu-personale');
     
     function cambiaPagina(idPagina, pulsanteSelezionato) {
         document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
@@ -380,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
     if (menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
+    if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
 
     caricaDatiData();
 });

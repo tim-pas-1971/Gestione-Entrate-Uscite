@@ -35,12 +35,14 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 /* --- BOX TOTALE PAGINA UNIFICATO --- */
 .page-counter-box-top { display: flex; justify-content: flex-end; align-items: center; background-color: #ffffff; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #16a34a; gap: 15px; }
 .page-counter-box-top-blue { display: flex; justify-content: flex-end; align-items: center; background-color: #f0f9ff; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #0284c7; gap: 15px; }
+.page-counter-box-top-ocra { display: flex; justify-content: flex-end; align-items: center; background-color: #fffbeb; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #d97706; gap: 15px; }
 .page-counter-label { font-size: 11pt; font-weight: 600; color: #475569; }
-#page-entrate-total, #page-loans-total, #page-fin-total, #page-personale-total { font-size: 14pt; font-weight: normal; font-style: italic; }
+#page-entrate-total, #page-loans-total, #page-fin-total, #page-personale-total, #page-uscite-total { font-size: 14pt; font-weight: normal; font-style: italic; }
 #page-entrate-total { color: #047857; }
 #page-prestiti .page-counter-box-top { border-right: 5px solid #e74c3c; background-color: #fef2f2; }
 #page-loans-total, #page-fin-total { color: #b91c1c; }
 #page-personale-total { color: #0369a1; }
+#page-uscite-total { color: #b45309; }
 
 /* --- CONTENITORI SEZIONI (CARDS) --- */
 .page-body { padding: 30px; max-width: 1200px; margin: 0 auto; }
@@ -49,15 +51,17 @@ body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
 .border-green { border-left: 5px solid #2cc71f; }
 .border-red { border-left: 5px solid #e74c3c; }
 .border-blue { border-left: 5px solid #0284c7; }
+.border-ocra { border-left: 5px solid #d97706; }
 .section-subtitle { font-size: 11pt; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px; }
 .color-green { color: #15803d; }
 .color-red { color: #b91c1c; }
 .color-blue { color: #0369a1; }
+.color-ocra { color: #b45309; }
 
-/* --- GRIGLIA DI ALLINEAMENTO ENTRATE (FLEXBOX) --- */
+/* --- GRIGLIA DI ALLINEAMENTO INPUT (FLEXBOX) --- */
 .grid-inputs { display: flex; flex-direction: column; gap: 14px; }
 .input-row { display: flex; align-items: center; width: 100%; gap: 15px; }
-.block-label { width: 150px; font-size: 10pt; font-weight: 700; color: #475569; flex-shrink: 0; }
+.block-label { width: 260px; font-size: 10pt; font-weight: 700; color: #475569; flex-shrink: 0; } /* Allargato a 260px per le scritte delle uscite */
 
 input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; background-color: #ffffff; outline: none; }
 .period-select, .varie-select { width: 180px; flex-shrink: 0; }
@@ -67,7 +71,10 @@ input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; borde
 .amount-wrapper::before { content: "€"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #15803d; font-size: 10pt; }
 .amount-input { width: 100%; padding: 9px 12px 9px 28px; text-align: right; font-weight: 700; color: #15803d; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; }
 
-/* Opzione segnaposto grigia per la tendina dei periodi */
+/* Wrapper e input specifici per le Uscite Generali (Sfondo Arancio/Ocra stiloso) */
+.wrapper-ocra::before { content: "€"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #b45309 !important; font-size: 10pt; }
+.amount-input-ocra { width: 100%; padding: 9px 12px 9px 28px; text-align: right; font-weight: 700; color: #b45309; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; outline: none; }
+
 .period-select option[value=""] { color: #94a3b8; font-style: italic; }
 
 /* --- STRUTTURA TABELLA PRESTITI E FINANZIAMENTI --- */
@@ -75,13 +82,11 @@ input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; borde
 .loans-table th { font-size: 8.5pt; font-weight: 800; color: #64748b; padding: 12px 4px; text-align: center; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
 .loans-table td { padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-/* Proporzioni colonne */
-.loans-table th:nth-child(1) { width: 14%; } 
-.loans-table th:nth-child(2) { width: 15%; } 
+.loans-table th:nth-child(1) { width: 13%; } 
+.loans-table th:nth-child(2) { width: 14%; } 
 
 .loans-table input[type="text"] { width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; outline: none; }
 
-/* Campi Cifre: ridotti a 110px per ospitare 5 cifre + decimali */
 .loans-table .amount-wrapper { width: 110px; margin: 0 auto; position: relative; }
 .loans-table .amount-wrapper::before { content: "€"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #b91c1c; font-size: 9.5pt; }
 
@@ -98,7 +103,7 @@ input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; borde
 }
 .loans-table .balance-output { background-color: #fef2f2 !important; border-color: #fecaca !important; color: #b91c1c !important; font-weight: 700; }
 
-/* --- STILI AZZURRI SPECIFICI PER LA PAGINA PERSONALE --- */
+/* Specifici pagina personale azzurra */
 .loans-table .wrapper-blue::before { color: #0284c7 !important; }
 .loans-table .pers-amount-input { 
     width: 100% !important; 
@@ -113,7 +118,6 @@ input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; borde
 }
 .loans-table .balance-output-blue { background-color: #f0f9ff !important; border-color: #bae6fd !important; color: #0284c7 !important; font-weight: 700; }
 
-/* Interfaccia tendine */
 .fin-company, .pers-company { width: 100%; padding: 8px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 9.5pt; background-color: #ffffff; color: #334155; outline: none; }
 .fin-company option[value=""], .pers-company option[value=""] { color: #94a3b8; font-style: italic; }
 .section-total-wrapper { text-align: right; margin-top: 15px; font-weight: bold; font-size: 11pt; color: #b91c1c; }

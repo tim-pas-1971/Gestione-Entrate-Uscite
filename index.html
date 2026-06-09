@@ -127,10 +127,6 @@
 
             <div id="page-prestiti" class="page-body" style="display: none;">
                 <h1 class="page-title">Prestiti (Familiari / Amici)</h1>
-                <div class="page-counter-box-top">
-                    <span class="page-counter-label">Totale pagina: </span>
-                    <span id="page-loans-total">€ 0.00</span>
-                </div>
                 
                 <div class="card-section border-red">
                     <h3 class="section-subtitle color-red">PRESTITI</h3>
@@ -190,6 +186,90 @@
                             </tbody>
                         </table>
                     </form>
+                    <div class="section-total-wrapper" style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 11pt; color: #b91c1c;">
+                        <span>Totale Prestiti: </span><span id="page-loans-total">€ 0.00</span>
+                    </div>
+                </div>
+
+                <div class="card-section border-red" style="margin-top: 30px;">
+                    <h3 class="section-subtitle color-red">FINANZIAMENTI (PER CONTO DI ...)</h3>
+                    <form id="finanziamenti-form">
+                        <table class="loans-table">
+                            <thead>
+                                <tr>
+                                    <th>BENEFICIARIO</th>
+                                    <th>FINANZIARIA</th>
+                                    <th>NOTE</th>
+                                    <th>TOTALE DOVUTO</th>
+                                    <th>USCITE</th>
+                                    <th>ENTRATE</th>
+                                    <th>RIMANENZA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fin-table-body">
+                                <tr class="fin-row">
+                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                    <td>
+                                        <select class="fin-company" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt;">
+                                            <option value="">- Finanziaria -</option>
+                                            <option value="Agos">Agos</option>
+                                            <option value="Compass">Compass</option>
+                                            <option value="Credem">Credem</option>
+                                            <option value="Deutsche Bank">Deutsche Bank</option>
+                                            <option value="Findomestic">Findomestic</option>
+                                            <option value="Poste Italiane">Poste Italiane</option>
+                                            <option value="Santander">Santander</option>
+                                            <option value="Altro">Altro</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="fin-row">
+                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                    <td><select class="fin-company" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt;"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="fin-row">
+                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                    <td><select class="fin-company" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt;"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="fin-row">
+                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                    <td><select class="fin-company" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt;"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                                <tr class="fin-row">
+                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                    <td><select class="fin-company" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt;"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                    <div class="section-total-wrapper" style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 11pt; color: #b91c1c;">
+                        <span>Totale Finanziamenti: </span><span id="page-fin-total">€ 0.00</span>
+                    </div>
                 </div>
             </div>
         </main>

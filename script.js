@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
     righeFisseEntrate.forEach(inizializzaRigaFissa);
 
-    // FUNZIONE USCITE: SOLO TENDINA MESE E CIFRA (SENZA NOTE)
     function inizializzaRigaUscitaFissa(id) {
         const riga = document.getElementById(id);
         if (!riga) return;
@@ -71,8 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'row-gestione-auto', 
         'row-varie-imprevisti'
     ];
-    
-    // RIGA 67 CORRETTA: righeFisseUscite (senza la "s" finale!)
     righeFisseUscite.forEach(inizializzaRigaUscitaFissa);
 
     // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
@@ -199,19 +196,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // A) Conteggio Totale Pagina Entrate
-        let totaleEntrate = 0;
+        // A) Totale Pagina Entrate Generali
+        let totaleEntrateGenerali = 0;
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
-            totaleEntrate += parseFloat(input.value) || 0;
+            totaleEntrateGenerali += parseFloat(input.value) || 0;
         });
         const entrateTotaleEl = document.getElementById('page-entrate-total');
-        if (entrateTotaleEl) entrateTotaleEl.textContent = `€ ${totaleEntrate.toFixed(2)}`;
+        if (entrateTotaleEl) entrateTotaleEl.textContent = `€ ${totaleEntrateGenerali.toFixed(2)}`;
 
         const datiSalvatiDelGiorno = localStorage.getItem(`dati_${dataSelezionata}`);
         const haDatiSalvatiOggi = datiSalvatiDelGiorno !== null;
 
-        // B) Tabella 1: PRESTITI
-        let totaleRimanenzePrestiti = 0;
+        let uscitePrestitiGiorno = 0;
+        let entratePrestitiGiorno = 0;
+
+        // B) Pagina 2: PRESTITI E FINANZIAMENTI (Familiari)
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
             const campoDovuto = riga.querySelector('.loan-dovuto');
@@ -228,20 +227,19 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const u = parseFloat(campoUscite.value) || 0;
+            const e = parseFloat(campoEntrate.value) || 0;
+            const rimanenza = dovuto + u - e;
 
-            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && u === 0 && e === 0) {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
-                totaleRimanenzePrestiti += rimanenza > 0 ? rimanenza : 0;
+                uscitePrestitiGiorno += u;
+                entratePrestitiGiorno += e;
             }
         });
-        const loansTotaleEl = document.getElementById('page-loans-total');
-        if (loansTotaleEl) loansTotaleEl.textContent = `€ ${totaleRimanenzePrestiti.toFixed(2)}`;
 
-        // C) Tabella 2: FINANZIAMENTI
-        let totaleRimanenzeFinanziamenti = 0;
         document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.fin-name');
             const campoFinanziaria = riga.querySelector('.fin-company');
@@ -260,20 +258,28 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto + (parseFloat(campoUscite.value) || 0) - (parseFloat(campoEntrate.value) || 0);
+            const u = parseFloat(campoUscite.value) || 0;
+            const e = parseFloat(campoEntrate.value) || 0;
+            const rimanenza = dovuto + u - e;
 
-            if (nomeAttuale.trim() === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+            if (nomeAttuale.trim() === "" && dovuto === 0 && u === 0 && e === 0) {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
-                totaleRimanenzeFinanziamenti += rimanenza > 0 ? rimanenza : 0;
+                uscitePrestitiGiorno += u;
+                entratePrestitiGiorno += e;
             }
         });
-        const finTotaleEl = document.getElementById('page-fin-total');
-        if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
 
-        // D) Tabella 3: PAGINA PERSONALE
-        let totaleRimanenzePersonale = 0;
+        const p2UsciteEl = document.getElementById('page-loans-total-uscite');
+        const p2EntrateEl = document.getElementById('page-loans-total-entrate');
+        if (p2UsciteEl) p2UsciteEl.textContent = `€ ${uscitePrestitiGiorno.toFixed(2)}`;
+        if (p2EntrateEl) p2EntrateEl.textContent = `€ ${entratePrestitiGiorno.toFixed(2)}`;
+
+        // C) Pagina 3: PRESTITI / FINANZIAMENTI (Personale)
+        let uscitePersonaleGiorno = 0;
+        let entratePersonaleGiorno = 0;
+
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             const campoFinanziaria = riga.querySelector('.pers-company');
             const campoDovuto = riga.querySelector('.pers-dovuto');
@@ -290,19 +296,25 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const rimanenza = dovuto - (parseFloat(campoUscite.value) || 0) + (parseFloat(campoEntrate.value) || 0);
+            const u = parseFloat(campoUscite.value) || 0;
+            const e = parseFloat(campoEntrate.value) || 0;
+            const rimanenza = dovuto - u + e;
 
-            if (finAttuale === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
+            if (finAttuale === "" && dovuto === 0 && u === 0 && e === 0) {
                 if (campoRimanenza) campoRimanenza.value = "0.00";
             } else {
                 if (campoRimanenza) campoRimanenza.value = rimanenza.toFixed(2);
-                totaleRimanenzePersonale += rimanenza > 0 ? rimanenza : 0;
+                uscitePersonaleGiorno += u;
+                entratePersonaleGiorno += e;
             }
         });
-        const persTotaleEl = document.getElementById('page-personale-total');
-        if (persTotaleEl) persTotaleEl.textContent = `€ ${totaleRimanenzePersonale.toFixed(2)}`;
 
-        // E) Tabella 4: USCITE GENERALI MENSILI
+        const p3UsciteEl = document.getElementById('page-personale-total-uscite');
+        const p3EntrateEl = document.getElementById('page-personale-total-entrate');
+        if (p3UsciteEl) p3UsciteEl.textContent = `€ ${uscitePersonaleGiorno.toFixed(2)}`;
+        if (p3EntrateEl) p3EntrateEl.textContent = `€ ${entratePersonaleGiorno.toFixed(2)}`;
+
+        // D) Pagina 4: USCITE GENERALI MENSILI
         let totaleUsciteGenerali = 0;
         document.querySelectorAll('#page-uscite .amount-input-ocra').forEach(input => {
             totaleUsciteGenerali += parseFloat(input.value) || 0;
@@ -317,10 +329,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const usciteTotaleEl = document.getElementById('page-uscite-total');
         if (usciteTotaleEl) usciteTotaleEl.textContent = `€ ${totaleUsciteGenerali.toFixed(2)}`;
 
-        // F) Totale Giornata Unificato
+        // E) TOTALE GIORNATA UNIFICATO (Differenza flussi reali)
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
-            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti + totaleRimanenzePersonale + totaleUsciteGenerali).toFixed(2)}`;
+            const tutteLeEntrateDelGiorno = totaleEntrateGenerali + entratePrestitiGiorno + entratePersonaleGiorno;
+            const tutteLeUsciteDelGiorno = totaleUsciteGenerali + uscitePrestitiGiorno + uscitePersonaleGiorno;
+            const bilancioGiornata = tutteLeEntrateDelGiorno - tutteLeUsciteDelGiorno;
+            dailyTotalEl.textContent = `€ ${bilancioGiornata.toFixed(2)}`;
         }
     }
 

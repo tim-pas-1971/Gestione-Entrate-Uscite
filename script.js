@@ -535,6 +535,76 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
+    // --- 6. IMPLEMENTAZIONE FUNZIONI EXPORT E IMPORT JSON ---
+    const exportBtn = document.getElementById('export-btn');
+    const importBtn = document.getElementById('import-btn');
+    const importFileInput = document.getElementById('import-file-input');
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const tuttoIlDatabase = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const chiave = localStorage.key(i);
+                if (chiave.startsWith('dati_')) {
+                    tuttoIlDatabase[chiave] = localStorage.getItem(chiave);
+                }
+            }
+
+            const stringaDati = JSON.stringify(tuttoIlDatabase, null, 4);
+            const blob = new Blob([stringaDati], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const dataOggi = dateInput.value || 'backup';
+            const linkTemporaneo = document.createElement('a');
+            linkTemporaneo.href = url;
+            linkTemporaneo.download = `backup_casa_${dataOggi}.json`;
+            
+            document.body.appendChild(linkTemporaneo);
+            linkTemporaneo.click();
+            document.body.removeChild(linkTemporaneo);
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    if (importBtn && importFileInput) {
+        importBtn.addEventListener('click', () => {
+            importFileInput.click();
+        });
+
+        importFileInput.addEventListener('change', (evento) => {
+            const file = evento.target.files[0];
+            if (!file) return;
+
+            const lettore = new FileReader();
+            lettore.onload = (e) => {
+                try {
+                    const datiImportati = JSON.parse(e.target.result);
+                    
+                    if (Object.keys(datiImportati).length === 0) {
+                        alert("Il file selezionato è vuoto o non contiene dati validi.");
+                        return;
+                    }
+
+                    if (confirm("Stai per caricare un file di backup esterno. Questo unirà i dati salvati a quelli attuali. Vuoi procedere?")) {
+                        Object.keys(datiImportati).forEach(chiave => {
+                            if (chiave.startsWith('dati_')) {
+                                localStorage.setItem(chiave, datiImportati[chiave]);
+                            }
+                        });
+
+                        alert("Tutti i dati di sicurezza sono stati ripristinati con successo!");
+                        importFileInput.value = '';
+                        caricaDatiData();
+                    }
+                } catch (errore) {
+                    alert("Errore critico: Il file selezionato non è un formato JSON valido.");
+                    importFileInput.value = '';
+                }
+            };
+            lettore.readAsText(file);
+        });
+    }
+
     // --- NAVIGAZIONE SIDEBAR ---
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');

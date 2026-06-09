@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. COMPILAZIONE RIGHE FISSE ENTRATE ---
+    // --- 1. COMPILAZIONE RIGHE FISSE (ENTRATE E USCITE) ---
     const mesi = ["- Periodo -", "GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", 
                   "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE", 
                   "BONUS / UNA TANTUM", "TFR", "BUONUSCITA", "TREDICESIMA", "QUATTORDICESIMA"];
@@ -34,9 +34,45 @@ document.addEventListener('DOMContentLoaded', () => {
         riga.appendChild(wrapper);
     }
 
-    const righeFisse = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
-                        'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
-    righeFisse.forEach(inizializzaRigaFissa);
+    // Inizializzazione righe fisse Entrate
+    const righeFisseEntrate = ['row-naspi-luigi', 'row-naspi-tiziana', 'row-pensione-luigi', 
+                               'row-pensione-tiziana', 'row-stipendio-luigi', 'row-stipendio-tiziana'];
+    righeFisseEntrate.forEach(inizializzaRigaFissa);
+
+    // FUNZIONE PER INIZIALIZZARE LE RIGHE DELLE NUOVE USCITE GENERALI (Giallo Ocra)
+    function inizializzaRigaUscitaFissa(id) {
+        const riga = document.getElementById(id);
+        if (!riga) return;
+
+        const select = document.createElement('select');
+        select.className = 'period-select';
+        // Per le uscite usiamo solo i 12 mesi standard
+        mesi.slice(0, 13).forEach((m, index) => {
+            if (index === 0) {
+                select.innerHTML += `<option value="">${m}</option>`;
+            } else {
+                select.innerHTML += `<option value="${m}">${m}</option>`;
+            }
+        });
+
+        const inputNote = document.createElement('input');
+        inputNote.type = 'text';
+        inputNote.placeholder = 'Dettagli spesa...';
+        inputNote.className = 'note-input';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'amount-wrapper wrapper-ocra';
+        wrapper.innerHTML = '<input type="number" step="0.01" class="amount-input-ocra" placeholder="0.00">';
+
+        riga.appendChild(select);
+        riga.appendChild(inputNote);
+        riga.appendChild(wrapper);
+    }
+
+    const righeFisseUscite = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 
+                              'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 
+                              'row-gestione-auto', 'row-varie-imprevisti'];
+    righeFisseUscite.forEach(inizializzaRigaUscitaFissa);
 
     // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
     const dateInput = document.getElementById('global-date');
@@ -65,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA (TABELLA 1, 2 E 3) ---
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA (TABELLE STORICHE) ---
     function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
         let nomeTrovato = "";
         let debitoResiduo = 0;
@@ -145,8 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
                         const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
-                        
-                        // CORREZIONE MATEMATICA STORICA PERSONALE: Dovuto - Uscite (Rata) + Entrate
                         debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
                         
                         if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
@@ -237,12 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const finTotaleEl = document.getElementById('page-fin-total');
         if (finTotaleEl) finTotaleEl.textContent = `€ ${totaleRimanenzeFinanziamenti.toFixed(2)}`;
 
-        // D) Tabella 3: PAGINA PERSONALE (CORRETTA AL 100%)
+        // D) Tabella 3: PAGINA PERSONALE
         let totaleRimanenzePersonale = 0;
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             const campoFinanziaria = riga.querySelector('.pers-company');
             const campoDovuto = riga.querySelector('.pers-dovuto');
-            const campoUscite = riga.querySelector('.pers-uscite'); // Corretto (prima aveva una s di troppo qui sotto)
+            const campoUscite = riga.querySelector('.pers-uscite'); 
             const campoEntrate = riga.querySelector('.pers-entrate');
             const campoRimanenza = riga.querySelector('.pers-rimanenza');
 
@@ -250,14 +284,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!haDatiSalvatiOggi && campoFinanziaria.value === "" && storiaPassata && storiaPassata.rimanenza !== 0) {
                 campoFinanziaria.value = storiaPassata.finanziaria || "";
             }
-            
             const finAttuale = campoFinanziaria ? campoFinanziaria.value : "";
             let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            
-            // FORMULA PERSONALE BLINDATA: Il debito scende con il pagamento delle Uscite
             const rimanenza = dovuto - (parseFloat(campoUscite.value) || 0) + (parseFloat(campoEntrate.value) || 0);
 
             if (finAttuale === "" && dovuto === 0 && campoUscite.value === "" && campoEntrate.value === "") {
@@ -270,21 +301,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const persTotaleEl = document.getElementById('page-personale-total');
         if (persTotaleEl) persTotaleEl.textContent = `€ ${totaleRimanenzePersonale.toFixed(2)}`;
 
-        // E) Totale Giornata Unificato
+        // E) Tabella 4: NUOVA PAGINA USCITE GENERALI MENSILI (Conteggio Semplice)
+        let totaleUsciteGenerali = 0;
+        document.querySelectorAll('#page-uscite .amount-input-ocra').forEach(input => {
+            totaleUsciteGenerali += parseFloat(input.value) || 0;
+            // Se svuoto la cifra, si azzera la tendina del mese di quella riga
+            if (input.value === "") {
+                const rigaPadre = input.closest('.input-row');
+                if (rigaPadre) {
+                    const selectMese = rigaPadre.querySelector('.period-select');
+                    if (selectMese) selectMese.value = "";
+                }
+            }
+        });
+        const usciteTotaleEl = document.getElementById('page-uscite-total');
+        if (usciteTotaleEl) usciteTotaleEl.textContent = `€ ${totaleUsciteGenerali.toFixed(2)}`;
+
+        // F) Totale Giornata Unificato Completo (Bilancio Totale del giorno)
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
-            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti + totaleRimanenzePersonale).toFixed(2)}`;
+            // Nota economica: le entrate aumentano il totale di giornata, le uscite e i debiti residui pesano
+            dailyTotalEl.textContent = `€ ${(totaleEntrate + totaleRimanenzePrestiti + totaleRimanenzeFinanziamenti + totaleRimanenzePersonale + totaleUsciteGenerali).toFixed(2)}`;
         }
     }
 
-    // Intercettazione input dinamici
+    // Ascoltatori eventi tastiera e tendine
     document.addEventListener('input', (e) => {
-        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name, .pers-amount-input')) {
+        if (e.target.matches('.amount-input, .loan-amount-input, .loan-name, .fin-amount-input, .fin-name, .pers-amount-input, .amount-input-ocra')) {
             ricalcolaTutto();
         }
     });
     document.addEventListener('change', (e) => {
-        if (e.target.matches('.fin-company, .pers-company')) {
+        if (e.target.matches('.fin-company, .pers-company, #page-uscite .period-select')) {
             ricalcolaTutto();
         }
     });
@@ -294,9 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [], finanziamenti: [], personale: [] };
+        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [], finanziamenti: [], personale: [], uscite: {} };
 
-        righeFisse.forEach(id => {
+        // Salva le entrate fisse
+        righeFisseEntrate.forEach(id => {
             const riga = document.getElementById(id);
             if (riga) {
                 datiDaSalvare.stipendi[id] = {
@@ -307,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Salva le entrate varie
         document.querySelectorAll('#page-entrate .row-varie').forEach(riga => {
             datiDaSalvare.varie.push({
                 categoria: riga.querySelector('select')?.value || "",
@@ -315,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Salva i prestiti
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             let campoDovuto = riga.querySelector('.loan-dovuto').value;
             if (campoDovuto === "") {
@@ -330,6 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Salva i finanziamenti per conto di
         document.querySelectorAll('#fin-table-body .fin-row').forEach((riga, index) => {
             let campoDovuto = riga.querySelector('.fin-dovuto').value;
             if (campoDovuto === "") {
@@ -346,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Salva i finanziamenti personali
         document.querySelectorAll('#personale-table-body .pers-row').forEach((riga, index) => {
             let campoDovuto = riga.querySelector('.pers-dovuto').value;
             if (campoDovuto === "") {
@@ -361,6 +414,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // SALVA LE NUOVE USCITE GENERALI MENSILI
+        righeFisseUscites = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 'row-gestione-auto', 'row-varie-imprevisti'];
+        righeFisseUscites.forEach(id => {
+            const riga = document.getElementById(id);
+            if (riga) {
+                datiDaSalvare.uscite[id] = {
+                    mese: riga.querySelector('select')?.value || "",
+                    nota: riga.querySelector('.note-input')?.value || "",
+                    cifra: riga.querySelector('.amount-input-ocra')?.value || ""
+                };
+            }
+        });
+
         localStorage.setItem(`dati_${dataSelezionata}`, JSON.stringify(datiDaSalvare));
     }
 
@@ -368,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
+        // Reset campi preventivo
         document.querySelectorAll('main select').forEach(s => s.value = "");
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
@@ -378,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dati = JSON.parse(datiSalvati);
 
             if (dati.stipendi) {
-                righeFisse.forEach(id => {
+                righeFisseEntrate.forEach(id => {
                     const riga = document.getElementById(id);
                     if (riga && dati.stipendi[id]) {
                         if (riga.querySelector('select')) riga.querySelector('select').value = dati.stipendi[id].mese;
@@ -434,12 +501,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
+
+            // CARICA LE USCITE GENERALI SALVATE
+            if (dati.uscite) {
+                const righeFisseUscites = ['row-spesa-alimenti', 'row-spese-personali', 'row-spese-ristoranti', 'row-spese-salute', 'row-spese-gatti', 'row-gestione-casa', 'row-gestione-auto', 'row-varie-imprevisti'];
+                righeFisseUscites.forEach(id => {
+                    const riga = document.getElementById(id);
+                    if (riga && dati.uscite[id]) {
+                        if (riga.querySelector('select')) riga.querySelector('select').value = dati.uscite[id].mese;
+                        if (riga.querySelector('.note-input')) riga.querySelector('.note-input').value = dati.uscite[id].nota;
+                        if (riga.querySelector('.amount-input-ocra')) riga.querySelector('.amount-input-ocra').value = dati.uscite[id].cifra;
+                    }
+                });
+            }
         }
 
         ricalcolaTutto();
     }
 
-    if (dateInput) dateInput.addEventListener('change', dateInput.value ? caricaDatiData : null);
+    if (dateInput) dateInput.addEventListener('change', caricaDatiData);
 
     const saveBtn = document.getElementById('save-btn');
     const printBtn = document.getElementById('print-btn');
@@ -454,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // NAVIGAZIONE SIDEBAR
+    // NAVIGAZIONE SIDEBAR AGGIORNATA A 4 PAGINE EFFETTIVE
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const menuPersonale = document.getElementById('menu-personale');
@@ -472,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
     if (menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
-    if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuUsciteGenerali); });
+    if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-uscite', menuUsciteGenerali); });
 
     caricaDatiData();
 });

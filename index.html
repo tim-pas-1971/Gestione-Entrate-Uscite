@@ -9,9 +9,9 @@
 <body>
 
     <div class="app-layout">
-        <aside class="sidebar">
+        <aside class="sidebar" style="display: flex; flex-direction: column; height: 100vh; position: relative;">
             <div class="sidebar-header"><h2>Gestione Casa</h2></div>
-            <nav class="sidebar-menu">
+            <nav class="sidebar-menu" style="flex: 1; overflow-y: auto;">
                 <a href="#" class="menu-item active" id="menu-entrate" style="--item-color: #27ae60;">🟢 Entrate Generali</a>
                 <a href="#" class="menu-item" id="menu-prestiti" style="--item-color: #e74c3c;">🤝 Prestiti (Familiari / Amici)</a>
                 <a href="#" class="menu-item" id="menu-personale" style="--item-color: #0284c7;">🏦 Prestiti / Finanziamenti (Personale)</a>
@@ -21,10 +21,9 @@
                 <a href="#" class="menu-item" style="--item-color: #2980b9;">🔍 Ricerche</a>
             </nav>
             
-            <!-- TASTI DI EXPORT E IMPORT IN FONDO ALLA SIDEBAR COME DA IMMAGINE -->
-            <div class="sidebar-backup-zone" style="padding: 15px; margin-top: auto; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #e2e8f0;">
-                <button id="export-btn" style="width: 100%; padding: 10px; background: transparent; border: 1px solid #2563eb; color: #2563eb; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">ESPORTA JSON</button>
-                <button id="import-btn" style="width: 100%; padding: 10px; background: transparent; border: 1px solid #475569; color: #475569; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">IMPORTA JSON</button>
+            <div class="sidebar-backup-zone" style="padding: 15px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box;">
+                <button id="export-btn" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">ESPORTA JSON</button>
+                <button id="import-btn" style="width: 100%; padding: 10px; background: #475569; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">IMPORTA JSON</button>
                 <input type="file" id="import-file-input" accept=".json" style="display: none;">
             </div>
         </aside>

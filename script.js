@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     righeFisseUscite.forEach(inizializzaRigaUscitaFissa);
 
-    // IMPOSTAZIONE DATA ODIERNA DI DEFAULT
+    // IMPOSTAZIONE DATA ODIERNA DE DEFAULT
     const dateInput = document.getElementById('global-date');
     if (dateInput && !dateInput.value) {
         const oggi = new Date();
@@ -630,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     importFileInput.value = '';
                 }
             };
-            let tore.readAsText(file);
+            lettore.readAsText(file);
         });
     }
 

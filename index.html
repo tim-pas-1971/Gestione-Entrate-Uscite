@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Economica</title>
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
+    <!-- Libreria per i grafici interattivi fumetti e tooltip -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
     <div class="app-layout">
-        <aside class="sidebar" style="display: flex; flex-direction: column; height: 100vh; position: relative;">
+        <aside class="sidebar">
             <div class="sidebar-header"><h2>Gestione Casa</h2></div>
-            <nav class="sidebar-menu" style="flex: 1; overflow-y: auto;">
+            <nav class="sidebar-menu">
                 <a href="#" class="menu-item active" id="menu-entrate" style="--item-color: #27ae60;">🟢 Entrate Generali</a>
                 <a href="#" class="menu-item" id="menu-prestiti" style="--item-color: #e74c3c;">🤝 Prestiti / Finanziamenti (Familiari / Amici)</a>
                 <a href="#" class="menu-item" id="menu-personale" style="--item-color: #0284c7;">🏦 Prestiti / Finanziamenti (Personale)</a>
@@ -22,15 +23,15 @@
                 <a href="#" class="menu-item" style="--item-color: #2980b9;">🔍 Ricerche</a>
             </nav>
             
-            <div class="sidebar-backup-zone" style="padding: 15px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box;">
-                <button id="export-btn" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">ESPORTA JSON</button>
-                <button id="import-btn" style="width: 100%; padding: 10px; background: #475569; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">IMPORTA JSON</button>
+            <div class="sidebar-backup-zone">
+                <button id="export-btn">ESPORTA JSON</button>
+                <button id="import-btn">IMPORTA JSON</button>
                 <input type="file" id="import-file-input" accept=".json" style="display: none;">
             </div>
         </aside>
 
-        <main class="main-content" style="width: 100%; max-width: 100%; box-sizing: border-box;">
-            <div class="top-control-bar" style="max-width: 100%; width: 100%;">
+        <main class="main-content">
+            <div class="top-control-bar">
                 <div class="control-group">
                     <label>DATA</label>
                     <input type="date" id="global-date">
@@ -45,12 +46,11 @@
                 </div>
             </div>
 
+            <!-- PAGINA 1: ENTRATE GENERALI -->
             <div id="page-entrate" class="page-body">
                 <h1 class="page-title">Entrate Generali</h1>
-                
                 <div class="page-counter-box-top">
-                    <span class="page-counter-label">Entrate del giorno: </span>
-                    <span id="page-entrate-total">€ 0.00</span>
+                    <span class="page-counter-label">Entrate del giorno: <span id="page-entrate-total">€ 0.00</span></span>
                 </div>
 
                 <div class="card-section border-green">
@@ -68,6 +68,7 @@
                 <div class="card-section border-green">
                     <h3 class="section-subtitle color-green">ENTRATE VARIE</h3>
                     <div class="grid-inputs" id="varie-inputs-container">
+                        <!-- Generazione righe entrate varie -->
                         <div class="input-row row-varie">
                             <span class="block-label">Entrata 1</span>
                             <select class="varie-select"><option value="">Entrata da parte di...</option><option value="Gavino Spano">Gavino Spano</option><option value="Gratta&Vinci">Gratta&Vinci</option><option value="Subito.it">Subito.it</option><option value="Vinted">Vinted</option><option value="Altro">Altro</option></select>
@@ -132,276 +133,236 @@
                 </div>
             </div>
 
+            <!-- PAGINA 2: FAMILIARI / AMICI -->
             <div id="page-prestiti" class="page-body" style="display: none;">
                 <h1 class="page-title">Prestiti / Finanziamenti (Familiari / Amici)</h1>
-                <div class="page-counter-box-top">
-                    <span class="page-counter-label">Uscite del giorno: <span id="page-loans-total-uscite" style="color: #b91c1c; font-style: italic; font-weight: normal; margin-right: 20px;">€ 0.00</span></span>
-                    <span class="page-counter-label">Entrate del giorno: <span id="page-loans-total-entrate" style="color: #047857; font-style: italic; font-weight: normal;">€ 0.00</span></span>
+                <div class="page-counter-box-top" style="border-left-color: #e74c3c; color: #e74c3c;">
+                    <span>Uscite del giorno: <span id="page-loans-total-uscite" style="margin-right: 20px;">€ 0.00</span></span>
+                    <span>Entrate del giorno: <span id="page-loans-total-entrate">€ 0.00</span></span>
                 </div>
                 
                 <div class="card-section border-red">
                     <h3 class="section-subtitle color-red">PRESTITI</h3>
-                    <form id="prestiti-form">
-                        <table class="loans-table">
-                            <thead>
-                                <tr>
-                                    <th>BENEFICIARIO</th>
-                                    <th>NOTE</th>
-                                    <th>TOTALE DOVUTO</th>
-                                    <th>USCITE</th>
-                                    <th>ENTRATE</th>
-                                    <th>RIMANENZA</th>
-                                </tr>
-                            </thead>
-                            <tbody id="loans-table-body">
-                                <tr class="loan-row">
-                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
-                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="loan-row">
-                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
-                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="loan-row">
-                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
-                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="loan-row">
-                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
-                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="loan-row">
-                                    <td><input type="text" class="loan-name" placeholder="Nome..."></td>
-                                    <td><input type="text" class="loan-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
+                    <table class="loans-table">
+                        <thead>
+                            <tr>
+                                <th>BENEFICIARIO</th>
+                                <th>NOTE</th>
+                                <th>TOTALE DOVUTO</th>
+                                <th>USCITE</th>
+                                <th>ENTRATE</th>
+                                <th>RIMANENZA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loans-table-body">
+                            <!-- 5 Righe Prestiti -->
+                            <tr class="loan-row">
+                                <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                <td><input type="text" class="loan-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="loan-row">
+                                <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                <td><input type="text" class="loan-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="loan-row">
+                                <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                <td><input type="text" class="loan-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="loan-row">
+                                <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                <td><input type="text" class="loan-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="loan-row">
+                                <td><input type="text" class="loan-name" placeholder="Nome..."></td>
+                                <td><input type="text" class="loan-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="loan-amount-input loan-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="loan-amount-input balance-output loan-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="card-section border-red" style="margin-top: 30px;">
                     <h3 class="section-subtitle color-red">FINANZIAMENTI (PER CONTO DI ...)</h3>
-                    <form id="finanziamenti-form">
-                        <table class="loans-table">
-                            <thead>
-                                <tr>
-                                    <th>BENEFICIARIO</th>
-                                    <th>FINANZIARIA</th>
-                                    <th>NOTE</th>
-                                    <th>TOTALE DOVUTO</th>
-                                    <th>USCITE</th>
-                                    <th>ENTRATE</th>
-                                    <th>RIMANENZA</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fin-table-body">
-                                <tr class="fin-row">
-                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
-                                    <td>
-                                        <select class="fin-company">
-                                            <option value="">- Finanziaria -</option>
-                                            <option value="Agos">Agos</option>
-                                            <option value="Compass">Compass</option>
-                                            <option value="Credem">Credem</option>
-                                            <option value="Deutsche Bank">Deutsche Bank</option>
-                                            <option value="Findomestic">Findomestic</option>
-                                            <option value="Poste Italiane">Poste Italiane</option>
-                                            <option value="Santander">Santander</option>
-                                            <option value="Altro">Altro</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="fin-row">
-                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
-                                    <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="fin-row">
-                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
-                                    <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="fin-row">
-                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
-                                    <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="fin-row">
-                                    <td><input type="text" class="fin-name" placeholder="Nome..."></td>
-                                    <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="fin-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
+                    <table class="loans-table">
+                        <thead>
+                            <tr>
+                                <th>BENEFICIARIO</th>
+                                <th>FINANZIARIA</th>
+                                <th>NOTE</th>
+                                <th>TOTALE DOVUTO</th>
+                                <th>USCITE</th>
+                                <th>ENTRATE</th>
+                                <th>RIMANENZA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fin-table-body">
+                            <!-- 5 Righe Finanziamenti Terzi -->
+                            <tr class="fin-row">
+                                <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="fin-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="fin-row">
+                                <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="fin-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="fin-row">
+                                <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="fin-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="fin-row">
+                                <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="fin-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="fin-row">
+                                <td><input type="text" class="fin-name" placeholder="Nome..."></td>
+                                <td><select class="fin-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="fin-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="number" step="0.01" class="fin-amount-input fin-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper"><input type="text" class="fin-amount-input balance-output fin-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
+            <!-- PAGINA 3: PERSONALE -->
             <div id="page-personale" class="page-body" style="display: none;">
                 <h1 class="page-title">Prestiti / Finanziamenti (Personale)</h1>
                 <div class="page-counter-box-top-blue">
-                    <span class="page-counter-label">Uscite del giorno: <span id="page-personale-total-uscite" style="color: #b91c1c; font-style: italic; font-weight: normal; margin-right: 20px;">€ 0.00</span></span>
-                    <span class="page-counter-label">Entrate del giorno: <span id="page-personale-total-entrate" style="color: #047857; font-style: italic; font-weight: normal;">€ 0.00</span></span>
+                    <span>Uscite del giorno: <span id="page-personale-total-uscite" style="margin-right: 20px;">€ 0.00</span></span>
+                    <span>Entrate del giorno: <span id="page-personale-total-entrate">€ 0.00</span></span>
                 </div>
                 
                 <div class="card-section border-blue">
                     <h3 class="section-subtitle color-blue">FINANZIAMENTI PERSONALI</h3>
-                    <form id="personale-form">
-                        <table class="loans-table">
-                            <thead>
-                                <tr>
-                                    <th>FINANZIARIA</th>
-                                    <th>NOTE</th>
-                                    <th>TOTALE DOVUTO</th>
-                                    <th>USCITE</th>
-                                    <th>ENTRATE</th>
-                                    <th>RIMANENZA</th>
-                                </tr>
-                            </thead>
-                            <tbody id="personale-table-body">
-                                <tr class="pers-row">
-                                    <td>
-                                        <select class="pers-company">
-                                            <option value="">- Finanziaria -</option>
-                                            <option value="Agos">Agos</option>
-                                            <option value="Compass">Compass</option>
-                                            <option value="Credem">Credem</option>
-                                            <option value="Deutsche Bank">Deutsche Bank</option>
-                                            <option value="Findomestic">Findomestic</option>
-                                            <option value="Poste Italiane">Poste Italiane</option>
-                                            <option value="Santander">Santander</option>
-                                            <option value="Altro">Altro</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" class="pers-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="pers-row">
-                                    <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="pers-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="pers-row">
-                                    <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="pers-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="pers-row">
-                                    <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="pers-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                                <tr class="pers-row">
-                                    <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
-                                    <td><input type="text" class="pers-note" placeholder="Note libere..."></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
-                                    <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
+                    <table class="loans-table">
+                        <thead>
+                            <tr>
+                                <th>FINANZIARIA</th>
+                                <th>NOTE</th>
+                                <th>TOTALE DOVUTO</th>
+                                <th>USCITE</th>
+                                <th>ENTRATE</th>
+                                <th>RIMANENZA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="personale-table-body">
+                            <!-- 5 Righe Finanziamenti Personali -->
+                            <tr class="pers-row">
+                                <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="pers-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="pers-row">
+                                <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="pers-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="pers-row">
+                                <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="pers-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="pers-row">
+                                <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="pers-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                            <tr class="pers-row">
+                                <td><select class="pers-company"><option value="">- Finanziaria -</option><option value="Agos">Agos</option><option value="Compass">Compass</option><option value="Credem">Credem</option><option value="Deutsche Bank">Deutsche Bank</option><option value="Findomestic">Findomestic</option><option value="Poste Italiane">Poste Italiane</option><option value="Santander">Santander</option><option value="Altro">Altro</option></select></td>
+                                <td><input type="text" class="pers-note" placeholder="Note..."></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-dovuto" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-uscite" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="number" step="0.01" class="pers-amount-input pers-entrate" placeholder="0.00"></div></td>
+                                <td><div class="amount-wrapper wrapper-blue"><input type="text" class="pers-amount-input balance-output-blue pers-rimanenza" placeholder="0.00" readonly></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
+            <!-- PAGINA 4: USCITE -->
             <div id="page-uscite" class="page-body" style="display: none;">
                 <h1 class="page-title">Uscite Generali Mensili</h1>
                 <div class="page-counter-box-top-ocra">
-                    <span class="page-counter-label">Uscite del mese: </span>
-                    <span id="page-uscite-total">€ 0.00</span>
+                    <span class="page-counter-label">Uscite del mese: <span id="page-uscite-total">€ 0.00</span></span>
                 </div>
                 
                 <div class="card-section border-ocra">
                     <h3 class="section-subtitle color-ocra">REGISTRAZIONE SPESE</h3>
                     <div class="grid-inputs">
-                        <div class="input-row row-uscite-fisse" id="row-spesa-alimenti">
-                            <span class="block-label">Spese per gli alimenti</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-spese-personali">
-                            <span class="block-label">Spese personali</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-spese-ristoranti">
-                            <span class="block-label">Spese per i ristoranti</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-spese-salute">
-                            <span class="block-label">Spese per la salute</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-spese-gatti">
-                            <span class="block-label">Spese per i gatti</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-gestione-casa">
-                            <span class="block-label">Spese per la gestione della casa</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-gestione-auto">
-                            <span class="block-label">Spese per la gestione dell'auto</span>
-                        </div>
-                        <div class="input-row row-uscite-fisse" id="row-varie-imprevisti">
-                            <span class="block-label">Varie / Imprevisti</span>
-                        </div>
+                        <div class="input-row row-uscite-fisse" id="row-spesa-alimenti"><span class="block-label">Spese per gli alimenti</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-spese-personali"><span class="block-label">Spese personali</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-spese-ristoranti"><span class="block-label">Spese per i ristoranti</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-spese-salute"><span class="block-label">Spese per la salute</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-spese-gatti"><span class="block-label">Spese per i gatti</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-gestione-casa"><span class="block-label">Spese per la gestione della casa</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-gestione-auto"><span class="block-label">Spese per la gestione dell'auto</span></div>
+                        <div class="input-row row-uscite-fisse" id="row-varie-imprevisti"><span class="block-label">Varie / Imprevisti</span></div>
                     </div>
                 </div>
             </div>
 
-            <div id="page-riepilogo-entrate" class="page-body" style="display: none; max-width: 100%; width: 100%;">
+            <!-- PAGINA 5: RIEPILOGO ENTRATE -->
+            <div id="page-riepilogo-entrate" class="page-body" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h1 class="page-title" style="margin: 0;">Riepilogo Entrate Annuali</h1>
                     <div class="control-group" style="flex-direction: row; align-items: center; gap: 10px;">
-                        <label style="margin: 0; font-weight: bold; color: #475569;">ANNO</label>
-                        <select id="revenue-year-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: bold; color: #1e293b; background: white; cursor: pointer;">
+                        <label style="margin: 0;">ANNO</label>
+                        <select id="revenue-year-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: bold;">
                             <option value="2026">2026</option>
                             <option value="2025">2025</option>
                             <option value="2027">2027</option>
@@ -409,44 +370,44 @@
                     </div>
                 </div>
 
-                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 6px solid #f1c40f; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; max-width: 100%;">
+                <!-- CONTATORE ANNUALE -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 6px solid #f1c40f; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.95rem; font-weight: 800; color: #475569; letter-spacing: 0.05em;">TOTALE ENTRATE ANNUALE <span id="revenue-total-year-label">2026</span></span>
                     <span id="revenue-annual-total-value" style="font-size: 1.8rem; font-weight: 900; color: #2563eb;">€ 0.00</span>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 40px; width: 100%;">
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GENNAIO</span><span id="rev-card-0" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">FEBBRAIO</span><span id="rev-card-1" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MARZO</span><span id="rev-card-2" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">APRILE</span><span id="rev-card-3" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MAGGIO</span><span id="rev-card-4" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GIUGNO</span><span id="rev-card-5" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">LUGLIO</span><span id="rev-card-6" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">AGOSTO</span><span id="rev-card-7" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">SETTEMBRE</span><span id="rev-card-8" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">OTTOBRE</span><span id="rev-card-9" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">NOVEMBRE</span><span id="rev-card-10" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">DICEMBRE</span><span id="rev-card-11" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                <!-- GRIGLIA CARDS 4 PER RIGA DINAMICA CSS (RISOLVE IMAGE_7A556D) -->
+                <div class="revenue-grid-4-columns">
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GENNAIO</span><span id="rev-card-0" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">FEBBRAIO</span><span id="rev-card-1" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MARZO</span><span id="rev-card-2" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">APRILE</span><span id="rev-card-3" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MAGGIO</span><span id="rev-card-4" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GIUGNO</span><span id="rev-card-5" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">LUGLIO</span><span id="rev-card-6" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">AGOSTO</span><span id="rev-card-7" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">SETTEMBRE</span><span id="rev-card-8" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">OTTOBRE</span><span id="rev-card-9" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">NOVEMBRE</span><span id="rev-card-10" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; margin: 0; border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">DICEMBRE</span><span id="rev-card-11" style="font-size: 1.25rem; font-weight: 800;">€ 0.00</span></div>
                 </div>
 
-                <div class="card-section" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 30px; max-width: 100%;">
+                <!-- GRAFICO 1 ISTOGRAMMA -->
+                <div class="card-section">
                     <h3 style="margin-top: 0; margin-bottom: 20px; color: #475569; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.05em;">ANDAMENTO ENTRATE ANNUALI (MESE PER MESE)</h3>
-                    <div style="position: relative; height: 380px; width: 100%;">
-                        <canvas id="chart-stacked-bar-revenue"></canvas>
-                    </div>
+                    <div style="position: relative; height: 380px; width: 100%;"><canvas id="chart-stacked-bar-revenue"></canvas></div>
                 </div>
 
-                <div class="card-section" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); max-width: 100%;">
-                    <h3 style="margin-top: 0; margin-bottom: 5px; color: #475569; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.05em; text-align: center;">DISTRIBUZIONE ENTRATE PER PAGINA</h3>
+                <!-- GRAFICO 2 TORTA -->
+                <div class="card-section">
+                    <h3 style="margin-top: 0; margin-bottom: 5px; color: #475569; font-size: 0.85rem; font-weight: 800; text-align: center; letter-spacing: 0.05em;">DISTRIBUZIONE ENTRATE PER PAGINA</h3>
                     <div id="pie-total-anno-title" style="text-align: center; font-size: 1.4rem; font-weight: 900; color: #1e293b; margin-bottom: 20px;">TOTALE ANNO: € 0.00</div>
-                    <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
-                        <canvas id="chart-pie-revenue" style="max-width: 350px;"></canvas>
-                    </div>
+                    <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;"><canvas id="chart-pie-revenue" style="max-width: 350px;"></canvas></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="script.js?v=10"></script>
+    <script src="script.js?v=11"></script>
 </body>
 </html>

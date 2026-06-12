@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoNome = riga.querySelector('.loan-name');
             const campoNota = riga.querySelector('.loan-note');
             const campoDovuto = riga.querySelector('.loan-dovuto');
-            const campoUscite = riga.querySelector('.loan-uscite');
+            const campoUscites = riga.querySelector('.loan-uscite');
             const campoEntrate = riga.querySelector('.loan-entrate');
             const campoRimanenza = riga.querySelector('.loan-rimanenza');
 
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const u = parseFloat(campoUscite.value) || 0;
+            const u = parseFloat(campoUscites.value) || 0;
             const e = parseFloat(campoEntrate.value) || 0;
             const rimanenza = dovuto + u - e;
 
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoFinanziaria = riga.querySelector('.fin-company');
             const campoNota = riga.querySelector('.fin-note');
             const campoDovuto = riga.querySelector('.fin-dovuto');
-            const campoUscite = riga.querySelector('.fin-uscite');
+            const campoUscites = riga.querySelector('.fin-uscite');
             const campoEntrate = riga.querySelector('.fin-entrate');
             const campoRimanenza = riga.querySelector('.fin-rimanenza');
 
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const u = parseFloat(campoUscite.value) || 0;
+            const u = parseFloat(campoUscites.value) || 0;
             const e = parseFloat(campoEntrate.value) || 0;
             const rimanenza = dovuto + u - e;
 
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const campoFinanziaria = riga.querySelector('.pers-company');
             const campoNota = riga.querySelector('.pers-note');
             const campoDovuto = riga.querySelector('.pers-dovuto');
-            const campoUscite = riga.querySelector('.pers-uscite'); 
+            const campoUscites = riga.querySelector('.pers-uscite'); 
             const campoEntrate = riga.querySelector('.pers-entrate');
             const campoRimanenza = riga.querySelector('.pers-rimanenza');
 
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
-            const u = parseFloat(campoUscite.value) || 0;
+            const u = parseFloat(campoUscites.value) || 0;
             const e = parseFloat(campoEntrate.value) || 0;
             const rimanenza = dovuto - u + e;
 
@@ -348,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const usciteTotaleEl = document.getElementById('page-uscite-total');
         if (usciteTotaleEl) usciteTotaleEl.textContent = `€ ${totaleUsciteGenerali.toFixed(2)}`;
 
-        // CORREZIONE ERRORE DI BATTITURA: Sostituito il vecchio righeFisseUscites errato con righeFisseUscite
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
             const tutteLeEntrateDelGiorno = totaleEntrateGenerali + entratePrestitiGiorno + entratePersonaleGiorno;
@@ -649,24 +648,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const labelAnno = document.getElementById('revenue-total-year-label');
         if (labelAnno) labelAnno.textContent = annoSelezionato;
 
-        // Inizializzazione contenitori per i 12 mesi per ogni singola pagina di entrata
         const entrateGenPerMese = new Array(12).fill(0);
         const prestitiFamPerMese = new Array(12).fill(0);
         const finanziamentiPersPerMese = new Array(12).fill(0);
 
-        // Scansione di tutte le chiavi del localStorage
         for (let i = 0; i < localStorage.length; i++) {
             const chiave = localStorage.key(i);
             
-            // Filtra solo le chiavi relative ai dati quotidiani dell'anno corretto (es: dati_2026-xx-xx)
             if (chiave.startsWith(`dati_${annoSelezionato}-`)) {
                 const partiData = chiave.split('-');
-                const meseIndice = parseInt(partiData[1], 10) - 1; // 0 per Gennaio, 1 per Febbraio, ecc.
+                const meseIndice = parseInt(partiData[1], 10) - 1;
                 
                 if (meseIndice >= 0 && meseIndice <= 11) {
                     const datiGiorno = JSON.parse(localStorage.getItem(chiave));
 
-                    // 1. Calcolo Entrate Generali
                     if (datiGiorno.stipendi) {
                         Object.values(datiGiorno.stipendi).forEach(st => {
                             entrateGenPerMese[meseIndice] += parseFloat(st.cifra) || 0;
@@ -678,7 +673,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
 
-                    // 2. Calcolo Entrate da Prestiti/Finanziamenti (Familiari / Amici)
                     if (datiGiorno.prestiti) {
                         datiGiorno.prestiti.forEach(p => {
                             prestitiFamPerMese[meseIndice] += parseFloat(p.entrate) || 0;
@@ -690,7 +684,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
 
-                    // 3. Calcolo Entrate da Prestiti/Finanziamenti (Personale)
                     if (datiGiorno.personale) {
                         datiGiorno.personale.forEach(pers => {
                             finanziamentiPersPerMese[meseIndice] += parseFloat(pers.entrate) || 0;
@@ -700,7 +693,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Calcolo totali complessivi mensili e annuale
         let totaleComplessivoAnno = 0;
         const totaliMensiliComplessivi = [];
 
@@ -709,26 +701,22 @@ document.addEventListener('DOMContentLoaded', () => {
             totaliMensiliComplessivi.push(sommaMese);
             totaleComplessivoAnno += sommaMese;
 
-            // Aggiorna visivamente il testo della card del mese corrispondente
             const cardElemento = document.getElementById(`rev-card-${m}`);
             if (cardElemento) {
                 cardElemento.textContent = `€ ${sommaMese.toFixed(2)}`;
             }
         }
 
-        // Aggiorna i contatori testuali del totale annuale
         const valoreTotaleAnnuoEl = document.getElementById('revenue-annual-total-value');
         if (valoreTotaleAnnuoEl) valoreTotaleAnnuoEl.textContent = `€ ${totaleComplessivoAnno.toFixed(2)}`;
         
         const tortaTitoloEl = document.getElementById('pie-total-anno-title');
         if (tortaTitoloEl) tortaTitoloEl.textContent = `TOTALE ANNO: € ${totaleComplessivoAnno.toFixed(2)}`;
 
-        // Calcolo dei volumi totali per pagina per il grafico a torta
         const totaleEntrateGeneraliPagina = entrateGenPerMese.reduce((a, b) => a + b, 0);
         const totalePrestitiFamiliariPagina = prestitiFamPerMese.reduce((a, b) => a + b, 0);
         const totaleFinanziamentiPersonaliPagina = finanziamentiPersPerMese.reduce((a, b) => a + b, 0);
 
-        // --- DISTRUZIONE VECCHIE ISTANZE PER EVITARE EFFETTI GHOSTING ---
         if (istanzaGraficoBarre) { istanzaGraficoBarre.destroy(); }
         if (istanzaGraficoTorta) { istanzaGraficoTorta.destroy(); }
 
@@ -743,19 +731,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         {
                             label: 'Entrate Generali',
                             data: entrateGenPerMese,
-                            backgroundColor: '#27ae60', // Verde coordinato
+                            backgroundColor: '#27ae60',
                             stack: 'entrate'
                         },
                         {
                             label: 'Prestiti / Finanziamenti (Familiari / Amici)',
                             data: prestitiFamPerMese,
-                            backgroundColor: '#e74c3c', // Rosso coordinato
+                            backgroundColor: '#e74c3c',
                             stack: 'entrate'
                         },
                         {
                             label: 'Prestiti / Finanziamenti (Personale)',
                             data: finanziamentiPersPerMese,
-                            backgroundColor: '#0284c7', // Blu coordinato
+                            backgroundColor: '#0284c7',
                             stack: 'entrate'
                         }
                     ]
@@ -780,8 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         y: { 
                             stacked: true,
                             beginAtZero: true,
-                            min: 0,        // <--- AGGIUNTO MINIMO
-                            max: 5000,     // <--- AGGIUNTO MASSIMO
+                            min: 0,        // <--- RANGE MINIMO BLOCCATO A 0
+                            max: 5000,     // <--- RANGE MASSIMO BLOCCATO A 5000
                             ticks: {
                                 callback: function(value) { return '€ ' + value; }
                             }
@@ -826,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- NAVIGAZIONE SIDEBAR SIDEBAR ---
+    // --- NAVIGAZIONE SIDEBAR ---
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const menuPersonale = document.getElementById('menu-personale');
@@ -841,7 +829,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         if (pulsanteSelezionato) pulsanteSelezionato.classList.add('active');
 
-        // Se l'utente seleziona la pagina riepilogo, esegui immediatamente il ricalcolo e disegna i grafici
         if (idPagina === 'page-riepilogo-entrate') {
             calcolaEdEseguiGraficiEntrate();
         }

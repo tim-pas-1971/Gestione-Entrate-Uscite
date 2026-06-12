@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Economica</title>
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -29,8 +29,8 @@
             </div>
         </aside>
 
-        <main class="main-content">
-            <div class="top-control-bar">
+        <main class="main-content" style="width: 100%; max-width: 100%; box-sizing: border-box;">
+            <div class="top-control-bar" style="max-width: 100%; width: 100%;">
                 <div class="control-group">
                     <label>DATA</label>
                     <input type="date" id="global-date">
@@ -396,7 +396,7 @@
                 </div>
             </div>
 
-            <div id="page-riepilogo-entrate" class="page-body" style="display: none;">
+            <div id="page-riepilogo-entrate" class="page-body" style="display: none; max-width: 100%; width: 100%;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h1 class="page-title" style="margin: 0;">Riepilogo Entrate Annuali</h1>
                     <div class="control-group" style="flex-direction: row; align-items: center; gap: 10px;">
@@ -409,34 +409,34 @@
                     </div>
                 </div>
 
-                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 6px solid #f1c40f; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 6px solid #f1c40f; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; max-width: 100%;">
                     <span style="font-size: 0.95rem; font-weight: 800; color: #475569; letter-spacing: 0.05em;">TOTALE ENTRATE ANNUALE <span id="revenue-total-year-label">2026</span></span>
                     <span id="revenue-annual-total-value" style="font-size: 1.8rem; font-weight: 900; color: #2563eb;">€ 0.00</span>
                 </div>
 
-                <div class="grid-inputs" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-bottom: 40px;">
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GENNAIO</span><span id="rev-card-0" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">FEBBRAIO</span><span id="rev-card-1" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MARZO</span><span id="rev-card-2" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">APRILE</span><span id="rev-card-3" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MAGGIO</span><span id="rev-card-4" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GIUGNO</span><span id="rev-card-5" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">LUGLIO</span><span id="rev-card-6" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">AGOSTO</span><span id="rev-card-7" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">SETTEMBRE</span><span id="rev-card-8" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">OTTOBRE</span><span id="rev-card-9" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">NOVEMBRE</span><span id="rev-card-10" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
-                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">DICEMBRE</span><span id="rev-card-11" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 40px; width: 100%;">
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GENNAIO</span><span id="rev-card-0" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">FEBBRAIO</span><span id="rev-card-1" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MARZO</span><span id="rev-card-2" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">APRILE</span><span id="rev-card-3" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">MAGGIO</span><span id="rev-card-4" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">GIUGNO</span><span id="rev-card-5" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">LUGLIO</span><span id="rev-card-6" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">AGOSTO</span><span id="rev-card-7" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">SETTEMBRE</span><span id="rev-card-8" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">OTTOBRE</span><span id="rev-card-9" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">NOVEMBRE</span><span id="rev-card-10" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
+                    <div class="card-section" style="padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-top: 3px solid #27ae60; margin: 0;"><span style="font-size: 0.75rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px;">DICEMBRE</span><span id="rev-card-11" style="font-size: 1.25rem; font-weight: 800; color: #1e293b;">€ 0.00</span></div>
                 </div>
 
-                <div class="card-section" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 30px;">
+                <div class="card-section" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 30px; max-width: 100%;">
                     <h3 style="margin-top: 0; margin-bottom: 20px; color: #475569; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.05em;">ANDAMENTO ENTRATE ANNUALI (MESE PER MESE)</h3>
                     <div style="position: relative; height: 380px; width: 100%;">
                         <canvas id="chart-stacked-bar-revenue"></canvas>
                     </div>
                 </div>
 
-                <div class="card-section" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <div class="card-section" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); max-width: 100%;">
                     <h3 style="margin-top: 0; margin-bottom: 5px; color: #475569; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.05em; text-align: center;">DISTRIBUZIONE ENTRATE PER PAGINA</h3>
                     <div id="pie-total-anno-title" style="text-align: center; font-size: 1.4rem; font-weight: 900; color: #1e293b; margin-bottom: 20px;">TOTALE ANNO: € 0.00</div>
                     <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
@@ -447,6 +447,6 @@
         </main>
     </div>
 
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>

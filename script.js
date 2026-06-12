@@ -630,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     importFileInput.value = '';
                 }
             };
-            lettore.readAsText(file);
+            let tore.readAsText(file);
         });
     }
 
@@ -768,8 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         y: { 
                             stacked: true,
                             beginAtZero: true,
-                            min: 0,        // <--- RANGE MINIMO BLOCCATO A 0
-                            max: 5000,     // <--- RANGE MASSIMO BLOCCATO A 5000
+                            min: 0,        // <--- BASE MINIMA BLOCCATA A 0 €
+                            max: 5000,     // <--- TETTO MASSIMO BLOCCATA A 5000 €
                             ticks: {
                                 callback: function(value) { return '€ ' + value; }
                             }

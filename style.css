@@ -1,123 +1,318 @@
-/* --- REGOLAZIONI GENERALI --- */
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-body { background-color: #f8fafc; color: #334155; overflow-x: hidden; }
+/* --- STILI GENERALI DI BASE --- */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
 
-/* --- STRUTTURA LAYOUT --- */
-.app-layout { display: flex; min-height: 100vh; }
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
 
-/* --- SIDEBAR --- */
-.sidebar { width: 280px; background-color: #ffffff; border-right: 1px solid #e2e8f0; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1010; display: flex; flex-direction: column; }
-.sidebar-header { padding: 24px 20px; border-bottom: 1px solid #f1f5f9; }
-.sidebar-header h2 { font-size: 14pt; color: #1e293b; font-weight: 700; }
-.sidebar-menu { padding: 15px 10px; display: flex; flex-direction: column; gap: 4px; }
-.menu-item { display: flex; align-items: center; padding: 12px 15px; color: #475569; text-decoration: none; font-size: 10.5pt; font-weight: 600; border-radius: 8px; transition: all 0.2s; }
-.menu-item.active { background-color: #e8f5e9; color: #2e7d32; font-weight: 700; }
+/* SIDEBAR REATTIVA */
+.sidebar {
+    width: 280px;
+    min-width: 280px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
 
-/* --- BARRA SUPERIORE --- */
-.main-content { margin-left: 280px; flex: 1; padding-top: 95px; min-height: 100vh; }
-.top-control-bar { position: fixed; top: 0; right: 0; left: 280px; height: 85px; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; }
-.control-group label { font-size: 7.5pt; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 4px; letter-spacing: 0.5px; }
-.control-group input[type="date"] { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; color: #1e293b; }
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
 
-/* Pulsanti Barra */
-.action-buttons { display: flex; gap: 10px; }
-.action-buttons button { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #0f172a;
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 15px 10px;
+}
+
+.menu-item {
+    display: block;
+    padding: 12px 15px;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.menu-item:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+.menu-item.active {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-left-color: var(--item-color);
+}
+
+/* CONTENUTO PRINCIPALE ESPANSO (RISOLVE IMAGE_7A5DB1) */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* BARRA DI CONTROLLO SUPERIORE */
+.top-control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.control-group label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.05em;
+}
+
+.control-group input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-blue, .btn-dark {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
 .btn-blue { background-color: #2563eb; color: white; }
 .btn-blue:hover { background-color: #1d4ed8; }
-.btn-dark { background-color: #475569; color: white; }
-.btn-dark:hover { background-color: #334155; }
+.btn-dark { background-color: #334155; color: white; }
+.btn-dark:hover { background-color: #1e293b; }
 
-/* Totale Giornata */
-.global-counter-box { text-align: right; }
-.counter-label { font-size: 7.5pt; font-weight: 800; color: #94a3b8; display: block; }
-.counter-value { font-size: 22pt; font-weight: 900; color: #0f172a; margin-left: 20px; display: inline-block; }
-
-/* --- BOX TOTALE PAGINA UNIFICATO --- */
-.page-counter-box-top { display: flex; justify-content: flex-end; align-items: center; background-color: #ffffff; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #16a34a; gap: 15px; }
-.page-counter-box-top-blue { display: flex; justify-content: flex-end; align-items: center; background-color: #f0f9ff; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #0284c7; gap: 15px; }
-.page-counter-box-top-ocra { display: flex; justify-content: flex-end; align-items: center; background-color: #fffbeb; padding: 18px 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e2e8f0; border-right: 5px solid #d97706; gap: 15px; }
-.page-counter-label { font-size: 11pt; font-weight: 600; color: #475569; }
-#page-entrate-total, #page-loans-total, #page-fin-total, #page-personale-total, #page-uscite-total { font-size: 14pt; font-weight: normal; font-style: italic; }
-#page-entrate-total { color: #047857; }
-#page-prestiti .page-counter-box-top { border-right: 5px solid #e74c3c; background-color: #fef2f2; }
-#page-loans-total, #page-fin-total { color: #b91c1c; }
-#page-personale-total { color: #0369a1; }
-#page-uscite-total { color: #b45309; }
-
-/* --- CONTENITORI SEZIONI (CARDS) --- */
-.page-body { padding: 30px; max-width: 1200px; margin: 0 auto; }
-.page-title { font-size: 20pt; color: #0f172a; font-weight: 700; margin-bottom: 25px; }
-.card-section { background-color: #ffffff; border-radius: 12px; padding: 24px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
-.border-green { border-left: 5px solid #2cc71f; }
-.border-red { border-left: 5px solid #e74c3c; }
-.border-blue { border-left: 5px solid #0284c7; }
-.border-ocra { border-left: 5px solid #d97706; }
-.section-subtitle { font-size: 11pt; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.5px; }
-.color-green { color: #15803d; }
-.color-red { color: #b91c1c; }
-.color-blue { color: #0369a1; }
-.color-ocra { color: #b45309; }
-
-/* --- GRIGLIA DI ALLINEAMENTO INPUT (FLEXBOX) --- */
-.grid-inputs { display: flex; flex-direction: column; gap: 14px; }
-.input-row { display: flex; align-items: center; width: 100%; gap: 15px; }
-.block-label { width: 260px; font-size: 10pt; font-weight: 700; color: #475569; flex-shrink: 0; } /* Allargato a 260px per le scritte delle uscite */
-
-input[type="text"], select { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; background-color: #ffffff; outline: none; }
-.period-select, .varie-select { width: 180px; flex-shrink: 0; }
-.note-input { flex: 1; } 
-
-.amount-wrapper { position: relative; width: 130px; flex-shrink: 0; }
-.amount-wrapper::before { content: "€"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #15803d; font-size: 10pt; }
-.amount-input { width: 100%; padding: 9px 12px 9px 28px; text-align: right; font-weight: 700; color: #15803d; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; }
-
-/* Wrapper e input specifici per le Uscite Generali (Sfondo Arancio/Ocra stiloso) */
-.wrapper-ocra::before { content: "€"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #b45309 !important; font-size: 10pt; }
-.amount-input-ocra { width: 100%; padding: 9px 12px 9px 28px; text-align: right; font-weight: 700; color: #b45309; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; outline: none; }
-
-.period-select option[value=""] { color: #94a3b8; font-style: italic; }
-
-/* --- STRUTTURA TABELLA PRESTITI E FINANZIAMENTI --- */
-.loans-table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; }
-.loans-table th { font-size: 8.5pt; font-weight: 800; color: #64748b; padding: 12px 4px; text-align: center; border-bottom: 2px solid #e2e8f0; letter-spacing: 0.5px; }
-.loans-table td { padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-
-.loans-table th:nth-child(1) { width: 13%; } 
-.loans-table th:nth-child(2) { width: 14%; } 
-
-.loans-table input[type="text"] { width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10pt; color: #334155; outline: none; }
-
-.loans-table .amount-wrapper { width: 110px; margin: 0 auto; position: relative; }
-.loans-table .amount-wrapper::before { content: "€"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #b91c1c; font-size: 9.5pt; }
-
-.loans-table .loan-amount-input, .loans-table .fin-amount-input { 
-    width: 100% !important; 
-    padding: 9px 8px 9px 22px !important; 
-    font-size: 9.5pt; 
-    font-weight: 600; 
-    text-align: right !important; 
-    border: 1px solid #cbd5e1; 
-    border-radius: 6px; 
-    outline: none; 
-    color: #b91c1c; 
+.global-counter-box {
+    background-color: #f8fafc;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: right;
+    border-right: 4px solid #0f172a;
 }
-.loans-table .balance-output { background-color: #fef2f2 !important; border-color: #fecaca !important; color: #b91c1c !important; font-weight: 700; }
 
-/* Specifici pagina personale azzurra */
-.loans-table .wrapper-blue::before { color: #0284c7 !important; }
-.loans-table .pers-amount-input { 
-    width: 100% !important; 
-    padding: 9px 8px 9px 22px !important; 
-    font-size: 9.5pt; 
-    font-weight: 600; 
-    text-align: right !important; 
-    border: 1px solid #cbd5e1; 
-    border-radius: 6px; 
-    outline: none; 
-    color: #0284c7 !important; 
+.counter-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.05em;
 }
-.loans-table .balance-output-blue { background-color: #f0f9ff !important; border-color: #bae6fd !important; color: #0284c7 !important; font-weight: 700; }
 
-.fin-company, .pers-company { width: 100%; padding: 8px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 9.5pt; background-color: #ffffff; color: #334155; outline: none; }
-.fin-company option[value=""], .pers-company option[value=""] { color: #94a3b8; font-style: italic; }
-.section-total-wrapper { text-align: right; margin-top: 15px; font-weight: bold; font-size: 11pt; color: #b91c1c; }
+.counter-value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+/* STRUTTURA DELLE SCHEDE (CARD) */
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.page-counter-box-top, .page-counter-box-top-blue, .page-counter-box-top-ocra {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.page-counter-box-top { border-left: 4px solid #27ae60; color: #27ae60; }
+.page-counter-box-top-blue { border-left: 4px solid #0284c7; color: #0284c7; }
+.page-counter-box-top-ocra { border-left: 4px solid #d97706; color: #d97706; }
+
+.card-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.border-green { border-top: 4px solid #27ae60; }
+.border-red { border-top: 4px solid #e74c3c; }
+.border-blue { border-top: 4px solid #0284c7; }
+.border-ocra { border-top: 4px solid #d97706; }
+
+.section-subtitle {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+.color-green { color: #27ae60; }
+.color-red { color: #e74c3c; }
+.color-blue { color: #0284c7; }
+.color-ocra { color: #d97706; }
+
+/* GRIGLIE DI INPUT COMPILAZIONE */
+.grid-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 8px 0;
+}
+
+.block-label {
+    width: 220px;
+    min-width: 220px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #334155;
+}
+
+.period-select, .varie-select, .fin-company, .pers-company {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #334155;
+    font-weight: 600;
+    font-family: inherit;
+    width: 200px;
+}
+
+.note-input, .loan-name, .loan-note, .fin-name, .fin-note, .pers-note {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    color: #334155;
+}
+
+.amount-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 0 10px;
+    width: 130px;
+}
+.amount-wrapper::before { content: "€"; font-weight: 700; color: #166534; margin-right: 8px; }
+.amount-input, .loan-amount-input, .fin-amount-input, .pers-amount-input {
+    border: none;
+    background: transparent;
+    padding: 8px 0;
+    width: 100%;
+    font-family: inherit;
+    font-weight: 700;
+    color: #166534;
+    text-align: right;
+    outline: none;
+}
+
+.amount-wrapper.wrapper-blue { background-color: #f0f9ff; border-color: #bae6fd; }
+.amount-wrapper.wrapper-blue::before { color: #0369a1; }
+.amount-wrapper.wrapper-blue input { color: #0369a1; }
+
+.amount-wrapper.wrapper-ocra { background-color: #fffbeb; border-color: #fde68a; }
+.amount-wrapper.wrapper-ocra::before { color: #b45309; }
+.amount-wrapper.wrapper-ocra input { color: #b45309; }
+
+/* TABELLE PRESTITI E FINANZIAMENTI */
+.loans-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.loans-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.loans-table td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.loans-table input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.balance-output, .balance-output-blue {
+    background: transparent !important;
+    border: none !important;
+    pointer-events: none;
+}
+
+/* GRIGLIA REATTIVA 4 COLONNE COMPATTA (RISOLVE IMAGE_7A556D) */
+.revenue-grid-4-columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 40px;
+    width: 100%;
+}

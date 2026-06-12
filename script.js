@@ -780,6 +780,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         y: { 
                             stacked: true,
                             beginAtZero: true,
+                            min: 0,        // <--- AGGIUNTO MINIMO
+                            max: 5000,     // <--- AGGIUNTO MASSIMO
                             ticks: {
                                 callback: function(value) { return '€ ' + value; }
                             }

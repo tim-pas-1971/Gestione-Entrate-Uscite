@@ -635,6 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 7. IMPLEMENTAZIONE COMPLETA DELLA PAGINA RIEPILOGO ENTRATE ANNUALI ---
+    // --- 7. IMPLEMENTAZIONE COMPLETA DELLA PAGINA RIEPILOGO ENTRATE ANNUALI ---
     let istanzaGraficoBarre = null;
     let istanzaGraficoTorta = null;
 
@@ -652,53 +653,64 @@ document.addEventListener('DOMContentLoaded', () => {
         const prestitiFamPerMese = new Array(12).fill(0);
         const finanziamentiPersPerMese = new Array(12).fill(0);
 
+        console.log("--- AVVIO LOG RIEPILOGO ---");
+        console.log("Elementi totali in LocalStorage:", localStorage.length);
+
         for (let i = 0; i < localStorage.length; i++) {
             const chiave = localStorage.key(i);
             
-            if (chiave.startsWith(`dati_${annoSelezionato}-`)) {
-                const partiData = chiave.split('-');
-                const meseIndice = parseInt(partiData[1], 10) - 1;
-                
-                if (meseIndice >= 0 && meseIndice <= 11) {
+            // Controllo flessibile: basta che contenga l'anno selezionato
+            if (chiave.includes(annoSelezionato)) {
+                try {
                     const datiGiorno = JSON.parse(localStorage.getItem(chiave));
+                    if (!datiGiorno) continue;
 
-                    if (datiGiorno.stipendi) {
-                        Object.values(datiGiorno.stipendi).forEach(st => {
-                            entrateGenPerMese[meseIndice] += parseFloat(st.cifra) || 0;
-                        });
-                    }
-                    if (datiGiorno.varie) {
-                        datiGiorno.varie.forEach(v => {
-                            entrateGenPerMese[meseIndice] += parseFloat(v.cifra) || 0;
-                        });
+                    // Estraiamo il mese dalla chiave (es. "dati_2026-06-12" -> "06" -> indice 5)
+                    const partiData = chiave.split('-');
+                    let meseIndice = -1;
+                    
+                    if (partiData.length >= 2) {
+                        meseIndice = parseInt(partiData[1], 10) - 1;
                     }
 
-                    if (datiGiorno.prestiti) {
-                        datiGiorno.prestiti.forEach(p => {
-                            prestitiFamPerMese[meseIndice] += parseFloat(p.entrate) || 0;
-                        });
+                    if (meseIndice >= 0 && meseIndice <= 11) {
+                        console.log(`Trovati dati per il mese index ${meseIndice} nella chiave ${chiave}`);
+                        
+                        if (datiGiorno.stipendi) {
+                            Object.values(datiGiorno.stipendi).forEach(st => {
+                                entrateGenPerMese[meseIndice] += parseFloat(st.cifra) || 0;
+                            });
+                        }
+                        if (datiGiorno.varie) {
+                            datiGiorno.varie.forEach(v => {
+                                entrateGenPerMese[meseIndice] += parseFloat(v.cifra) || 0;
+                            });
+                        }
+                        if (datiGiorno.prestiti) {
+                            datiGiorno.prestiti.forEach(p => {
+                                prestitiFamPerMese[meseIndice] += parseFloat(p.entrate) || 0;
+                            });
+                        }
+                        if (datiGiorno.finanziamenti) {
+                            datiGiorno.finanziamenti.forEach(f => {
+                                prestitiFamPerMese[meseIndice] += parseFloat(f.entrate) || 0;
+                            });
+                        }
+                        if (datiGiorno.personale) {
+                            datiGiorno.personale.forEach(pers => {
+                                finanziamentiPersPerMese[meseIndice] += parseFloat(pers.entrate) || 0;
+                            });
+                        }
                     }
-                    if (datiGiorno.finanziamenti) {
-                        datiGiorno.finanziamenti.forEach(f => {
-                            prestitiFamPerMese[meseIndice] += parseFloat(f.entrate) || 0;
-                        });
-                    }
-
-                    if (datiGiorno.personale) {
-                        datiGiorno.personale.forEach(pers => {
-                            finanziamentiPersPerMese[meseIndice] += parseFloat(pers.entrate) || 0;
-                        });
-                    }
+                } catch(e) {
+                    console.error("Errore lettura chiave:", chiave, e);
                 }
             }
         }
 
         let totaleComplessivoAnno = 0;
-        const totaliMensiliComplessivi = [];
-
         for (let m = 0; m < 12; m++) {
             const sommaMese = entrateGenPerMese[m] + prestitiFamPerMese[m] + finanziamentiPersPerMese[m];
-            totaliMensiliComplessivi.push(sommaMese);
             totaleComplessivoAnno += sommaMese;
 
             const cardElemento = document.getElementById(`rev-card-${m}`);
@@ -717,10 +729,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalePrestitiFamiliariPagina = prestitiFamPerMese.reduce((a, b) => a + b, 0);
         const totaleFinanziamentiPersonaliPagina = finanziamentiPersPerMese.reduce((a, b) => a + b, 0);
 
-        if (istanzaGraficoBarre) { istanzaGraficoBarre.destroy(); }
-        if (istanzaGraficoTorta) { istanzaGraficoTorta.destroy(); }
+        // Reset sicuro dei grafici per evitare sovrapposizioni
+        if (istanzaGraficoBarre) { istanzaGraficoBarre.destroy(); istanzaGraficoBarre = null; }
+        if (istanzaGraficoTorta) { istanzaGraficoTorta.destroy(); istanzaGraficoTorta = null; }
 
-        // --- STRUTTURA GRAFICO 1: ISTOGRAMMA IMPILATO (MESE PER MESE) ---
+        // --- STRUTTURA GRAFICO 1: ISTOGRAMMA IMPILATO ---
         const ctxBarre = document.getElementById('chart-stacked-bar-revenue');
         if (ctxBarre) {
             istanzaGraficoBarre = new Chart(ctxBarre, {
@@ -728,88 +741,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 data: {
                     labels: ['GEN', 'FEB', 'MAR', 'APR', 'MAG', 'GIU', 'LUG', 'AGO', 'SET', 'OTT', 'NOV', 'DIC'],
                     datasets: [
-                        {
-                            label: 'Entrate Generali',
-                            data: entrateGenPerMese,
-                            backgroundColor: '#27ae60',
-                            stack: 'entrate'
-                        },
-                        {
-                            label: 'Prestiti / Finanziamenti (Familiari / Amici)',
-                            data: prestitiFamPerMese,
-                            backgroundColor: '#e74c3c',
-                            stack: 'entrate'
-                        },
-                        {
-                            label: 'Prestiti / Finanziamenti (Personale)',
-                            data: finanziamentiPersPerMese,
-                            backgroundColor: '#0284c7',
-                            stack: 'entrate'
-                        }
+                        { label: 'Entrate Generali', data: entrateGenPerMese, backgroundColor: '#27ae60', stack: 'entrate' },
+                        { label: 'Prestiti / Finanziamenti (Familiari)', data: prestitiFamPerMese, backgroundColor: '#e74c3c', stack: 'entrate' },
+                        { label: 'Prestiti / Finanziamenti (Personale)', data: finanziamentiPersPerMese, backgroundColor: '#0284c7', stack: 'entrate' }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let etichetta = context.dataset.label || '';
-                                    let valore = context.raw || 0;
-                                    return `${etichetta}: € ${valore.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { stacked: true },
-                        y: { 
-                            stacked: true,
-                            beginAtZero: true,
-                            min: 0,
-                            max: 5000,
-                            ticks: {
-                                callback: function(value) { return '€ ' + value; }
-                            }
-                        }
-                    }
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
                 }
             });
         }
 
-        // --- STRUTTURA GRAFICO 2: GRAFICO A TORTA PERCENTUALE ---
+        // --- STRUTTURA GRAFICO 2: GRAFICO A TORTA ---
         const ctxTorta = document.getElementById('chart-pie-revenue');
         if (ctxTorta) {
             istanzaGraficoTorta = new Chart(ctxTorta, {
                 type: 'pie',
                 data: {
-                    labels: ['Entrate Generali', 'Prestiti / Finanziamenti (Familiari / Amici)', 'Prestiti / Finanziamenti (Personale)'],
+                    labels: ['Entrate Generali', 'Prestiti / Finanziamenti (Familiari)', 'Prestiti / Finanziamenti (Personale)'],
                     datasets: [{
                         data: [totaleEntrateGeneraliPagina, totalePrestitiFamiliariPagina, totaleFinanziamentiPersonaliPagina],
-                        backgroundColor: ['#27ae60', '#e74c3c', '#0284c7'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
+                        backgroundColor: ['#27ae60', '#e74c3c', '#0284c7']
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let valore = context.raw || 0;
-                                    let sommaTotale = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    let percentuale = sommaTotale > 0 ? ((valore / sommaTotale) * 100).toFixed(1) : 0;
-                                    return ` ${context.label}: € ${valore.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentuale}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
         }
     }

@@ -207,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // A) Totale Pagina Entrate Generali
         let totaleEntrateGenerali = 0;
         document.querySelectorAll('#page-entrate .amount-input').forEach(input => {
             totaleEntrateGenerali += parseFloat(input.value) || 0;
@@ -221,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let uscitePrestitiGiorno = 0;
         let entratePrestitiGiorno = 0;
 
-        // B) Pagina 2: PRESTITI E FINANZIAMENTI (Familiari)
         document.querySelectorAll('#loans-table-body .loan-row').forEach((riga, index) => {
             const campoNome = riga.querySelector('.loan-name');
             const campoNota = riga.querySelector('.loan-note');
@@ -232,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
             
-            // CORREZIONE: Scrittura reale del valore sia per il Nome che per la Nota se oggi è una giornata vergine
             if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
                 if (campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
                 if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
@@ -267,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
             
-            // CORREZIONE: Scrittura reale della nota per finanziamenti di terzi
             if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
                 if (campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
                 if (campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
@@ -297,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p2UsciteEl) p2UsciteEl.textContent = `€ ${uscitePrestitiGiorno.toFixed(2)}`;
         if (p2EntrateEl) p2EntrateEl.textContent = `€ ${entratePrestitiGiorno.toFixed(2)}`;
 
-        // C) Pagina 3: PRESTITI / FINANZIAMENTI (Personale)
         let uscitePersonaleGiorno = 0;
         let entratePersonaleGiorno = 0;
 
@@ -311,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
             
-            // CORREZIONE: Scrittura reale della nota per finanziamenti personali
             if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
                 if (campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
                 if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
@@ -340,7 +334,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p3UsciteEl) p3UsciteEl.textContent = `€ ${uscitePersonaleGiorno.toFixed(2)}`;
         if (p3EntrateEl) p3EntrateEl.textContent = `€ ${entratePersonaleGiorno.toFixed(2)}`;
 
-        // D) Pagina 4: USCITE GENERALI MENSILI
         let totaleUsciteGenerali = 0;
         document.querySelectorAll('#page-uscite .amount-input-ocra').forEach(input => {
             totaleUsciteGenerali += parseFloat(input.value) || 0;
@@ -355,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const usciteTotaleEl = document.getElementById('page-uscite-total');
         if (usciteTotaleEl) usciteTotaleEl.textContent = `€ ${totaleUsciteGenerali.toFixed(2)}`;
 
-        // E) TOTALE GIORNATA UNIFICATO (Differenza flussi reali)
+        // CORREZIONE ERRORE DI BATTITURA: Sostituito il vecchio righeFisseUscites errato con righeFisseUscite
         const dailyTotalEl = document.getElementById('daily-total');
         if (dailyTotalEl) {
             const tutteLeEntrateDelGiorno = totaleEntrateGenerali + entratePrestitiGiorno + entratePersonaleGiorno;
@@ -579,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 
-    // --- 6. IMPLEMENTAZIONE FUNZIONI EXPORT E IMPORT JSON ---
+    // --- 6. EXPORT E IMPORT JSON ---
     const exportBtn = document.getElementById('export-btn');
     const importBtn = document.getElementById('import-btn');
     const importFileInput = document.getElementById('import-file-input');
@@ -593,16 +586,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     tuttoIlDatabase[chiave] = localStorage.getItem(chiave);
                 }
             }
-
             const stringaDati = JSON.stringify(tuttoIlDatabase, null, 4);
             const blob = new Blob([stringaDati], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            
             const dataOggi = dateInput.value || 'backup';
             const linkTemporaneo = document.createElement('a');
             linkTemporaneo.href = url;
             linkTemporaneo.download = `backup_casa_${dataOggi}.json`;
-            
             document.body.appendChild(linkTemporaneo);
             linkTemporaneo.click();
             document.body.removeChild(linkTemporaneo);
@@ -611,34 +601,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (importBtn && importFileInput) {
-        importBtn.addEventListener('click', () => {
-            importFileInput.click();
-        });
-
+        importBtn.addEventListener('click', () => { importFileInput.click(); });
         importFileInput.addEventListener('change', (evento) => {
             const file = evento.target.files[0];
             if (!file) return;
-
             const lettore = new FileReader();
             lettore.onload = (e) => {
                 try {
                     const datiImportati = JSON.parse(e.target.result);
-                    
                     if (Object.keys(datiImportati).length === 0) {
                         alert("Il file selezionato è vuoto o non contiene dati validi.");
                         return;
                     }
-
                     if (confirm("Stai per caricare un file di backup esterno. Questo unirà i dati salvati a quelli attuali. Vuoi procedere?")) {
                         Object.keys(datiImportati).forEach(chiave => {
                             if (chiave.startsWith('dati_')) {
                                 localStorage.setItem(chiave, datiImportati[chiave]);
                             }
                         });
-
                         alert("Tutti i dati di sicurezza sono stati ripristinati con successo!");
                         importFileInput.value = '';
                         caricaDatiData();
+                        if (document.getElementById('page-riepilogo-entrate').style.display === 'block') {
+                            calcolaEdEseguiGraficiEntrate();
+                        }
                     }
                 } catch (errore) {
                     alert("Errore critico: Il file selezionato non è un formato JSON valido.");
@@ -649,11 +635,201 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NAVIGAZIONE SIDEBAR ---
+    // --- 7. IMPLEMENTAZIONE COMPLETA DELLA PAGINA RIEPILOGO ENTRATE ANNUALI ---
+    let istanzaGraficoBarre = null;
+    let istanzaGraficoTorta = null;
+
+    const yearSelectRevenue = document.getElementById('revenue-year-select');
+    if (yearSelectRevenue) {
+        yearSelectRevenue.addEventListener('change', calcolaEdEseguiGraficiEntrate);
+    }
+
+    function calcolaEdEseguiGraficiEntrate() {
+        const annoSelezionato = yearSelectRevenue ? yearSelectRevenue.value : "2026";
+        const labelAnno = document.getElementById('revenue-total-year-label');
+        if (labelAnno) labelAnno.textContent = annoSelezionato;
+
+        // Inizializzazione contenitori per i 12 mesi per ogni singola pagina di entrata
+        const entrateGenPerMese = new Array(12).fill(0);
+        const prestitiFamPerMese = new Array(12).fill(0);
+        const finanziamentiPersPerMese = new Array(12).fill(0);
+
+        // Scansione di tutte le chiavi del localStorage
+        for (let i = 0; i < localStorage.length; i++) {
+            const chiave = localStorage.key(i);
+            
+            // Filtra solo le chiavi relative ai dati quotidiani dell'anno corretto (es: dati_2026-xx-xx)
+            if (chiave.startsWith(`dati_${annoSelezionato}-`)) {
+                const partiData = chiave.split('-');
+                const meseIndice = parseInt(partiData[1], 10) - 1; // 0 per Gennaio, 1 per Febbraio, ecc.
+                
+                if (meseIndice >= 0 && meseIndice <= 11) {
+                    const datiGiorno = JSON.parse(localStorage.getItem(chiave));
+
+                    // 1. Calcolo Entrate Generali
+                    if (datiGiorno.stipendi) {
+                        Object.values(datiGiorno.stipendi).forEach(st => {
+                            entrateGenPerMese[meseIndice] += parseFloat(st.cifra) || 0;
+                        });
+                    }
+                    if (datiGiorno.varie) {
+                        datiGiorno.varie.forEach(v => {
+                            entrateGenPerMese[meseIndice] += parseFloat(v.cifra) || 0;
+                        });
+                    }
+
+                    // 2. Calcolo Entrate da Prestiti/Finanziamenti (Familiari / Amici)
+                    if (datiGiorno.prestiti) {
+                        datiGiorno.prestiti.forEach(p => {
+                            prestitiFamPerMese[meseIndice] += parseFloat(p.entrate) || 0;
+                        });
+                    }
+                    if (datiGiorno.finanziamenti) {
+                        datiGiorno.finanziamenti.forEach(f => {
+                            prestitiFamPerMese[meseIndice] += parseFloat(f.entrate) || 0;
+                        });
+                    }
+
+                    // 3. Calcolo Entrate da Prestiti/Finanziamenti (Personale)
+                    if (datiGiorno.personale) {
+                        datiGiorno.personale.forEach(pers => {
+                            finanziamentiPersPerMese[meseIndice] += parseFloat(pers.entrate) || 0;
+                        });
+                    }
+                }
+            }
+        }
+
+        // Calcolo totali complessivi mensili e annuale
+        let totaleComplessivoAnno = 0;
+        const totaliMensiliComplessivi = [];
+
+        for (let m = 0; m < 12; m++) {
+            const sommaMese = entrateGenPerMese[m] + prestitiFamPerMese[m] + finanziamentiPersPerMese[m];
+            totaliMensiliComplessivi.push(sommaMese);
+            totaleComplessivoAnno += sommaMese;
+
+            // Aggiorna visivamente il testo della card del mese corrispondente
+            const cardElemento = document.getElementById(`rev-card-${m}`);
+            if (cardElemento) {
+                cardElemento.textContent = `€ ${sommaMese.toFixed(2)}`;
+            }
+        }
+
+        // Aggiorna i contatori testuali del totale annuale
+        const valoreTotaleAnnuoEl = document.getElementById('revenue-annual-total-value');
+        if (valoreTotaleAnnuoEl) valoreTotaleAnnuoEl.textContent = `€ ${totaleComplessivoAnno.toFixed(2)}`;
+        
+        const tortaTitoloEl = document.getElementById('pie-total-anno-title');
+        if (tortaTitoloEl) tortaTitoloEl.textContent = `TOTALE ANNO: € ${totaleComplessivoAnno.toFixed(2)}`;
+
+        // Calcolo dei volumi totali per pagina per il grafico a torta
+        const totaleEntrateGeneraliPagina = entrateGenPerMese.reduce((a, b) => a + b, 0);
+        const totalePrestitiFamiliariPagina = prestitiFamPerMese.reduce((a, b) => a + b, 0);
+        const totaleFinanziamentiPersonaliPagina = finanziamentiPersPerMese.reduce((a, b) => a + b, 0);
+
+        // --- DISTRUZIONE VECCHIE ISTANZE PER EVITARE EFFETTI GHOSTING ---
+        if (istanzaGraficoBarre) { istanzaGraficoBarre.destroy(); }
+        if (istanzaGraficoTorta) { istanzaGraficoTorta.destroy(); }
+
+        // --- STRUTTURA GRAFICO 1: ISTOGRAMMA IMPILATO (MESE PER MESE) ---
+        const ctxBarre = document.getElementById('chart-stacked-bar-revenue');
+        if (ctxBarre) {
+            istanzaGraficoBarre = new Chart(ctxBarre, {
+                type: 'bar',
+                data: {
+                    labels: ['GEN', 'FEB', 'MAR', 'APR', 'MAG', 'GIU', 'LUG', 'AGO', 'SET', 'OTT', 'NOV', 'DIC'],
+                    datasets: [
+                        {
+                            label: 'Entrate Generali',
+                            data: entrateGenPerMese,
+                            backgroundColor: '#27ae60', // Verde coordinato
+                            stack: 'entrate'
+                        },
+                        {
+                            label: 'Prestiti / Finanziamenti (Familiari / Amici)',
+                            data: prestitiFamPerMese,
+                            backgroundColor: '#e74c3c', // Rosso coordinato
+                            stack: 'entrate'
+                        },
+                        {
+                            label: 'Prestiti / Finanziamenti (Personale)',
+                            data: finanziamentiPersPerMese,
+                            backgroundColor: '#0284c7', // Blu coordinato
+                            stack: 'entrate'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let etichetta = context.dataset.label || '';
+                                    let valore = context.raw || 0;
+                                    return `${etichetta}: € ${valore.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { 
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '€ ' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- STRUTTURA GRAFICO 2: GRAFICO A TORTA PERCENTUALE ---
+        const ctxTorta = document.getElementById('chart-pie-revenue');
+        if (ctxTorta) {
+            istanzaGraficoTorta = new Chart(ctxTorta, {
+                type: 'pie',
+                data: {
+                    labels: ['Entrate Generali', 'Prestiti / Finanziamenti (Familiari / Amici)', 'Prestiti / Finanziamenti (Personale)'],
+                    datasets: [{
+                        data: [totaleEntrateGeneraliPagina, totalePrestitiFamiliariPagina, totaleFinanziamentiPersonaliPagina],
+                        backgroundColor: ['#27ae60', '#e74c3c', '#0284c7'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let valore = context.raw || 0;
+                                    let sommaTotale = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    let percentuale = sommaTotale > 0 ? ((valore / sommaTotale) * 100).toFixed(1) : 0;
+                                    return ` ${context.label}: € ${valore.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentuale}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // --- NAVIGAZIONE SIDEBAR SIDEBAR ---
     const menuEntrate = document.getElementById('menu-entrate');
     const menuPrestiti = document.getElementById('menu-prestiti');
     const menuPersonale = document.getElementById('menu-personale');
     const menuUsciteGenerali = document.getElementById('menu-uscite-generali');
+    const menuRiepilogoEntrate = document.getElementById('menu-riepilogo-entrate');
     
     function cambiaPagina(idPagina, pulsanteSelezionato) {
         document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
@@ -662,12 +838,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         if (pulsanteSelezionato) pulsanteSelezionato.classList.add('active');
+
+        // Se l'utente seleziona la pagina riepilogo, esegui immediatamente il ricalcolo e disegna i grafici
+        if (idPagina === 'page-riepilogo-entrate') {
+            calcolaEdEseguiGraficiEntrate();
+        }
     }
 
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
     if (menuPrestiti) menuPrestiti.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-prestiti', menuPrestiti); });
     if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
     if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-uscite', menuUsciteGenerali); });
+    if (menuRiepilogoEntrate) menuRiepilogoEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-riepilogo-entrate', menuRiepilogoEntrate); });
 
     caricaDatiData();
 });

@@ -337,12 +337,31 @@
             <!-- PAGINA 4: USCITE -->
             <div id="page-uscite" class="page-body" style="display: none;">
                 <h1 class="page-title">Uscite Generali Mensili</h1>
-                <div class="page-counter-box-top-ocra">
-                    <span class="page-counter-label">Uscite del mese: <span id="page-uscite-total">€ 0.00</span></span>
+                <div id="page-uscite" class="page-body" style="display: none; max-width: 100%; width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h1 class="page-title" style="margin: 0;">Uscite Generali Mensili</h1>
+                    <div class="control-group" style="flex-direction: row; align-items: center; gap: 10px;">
+                        <label style="margin: 0; font-weight: bold; color: #475569;">ANNO</label>
+                        <select id="expenses-year-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: bold; color: #1e293b; background: white; cursor: pointer;">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2027">2027</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 6px solid #d97706; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; max-width: 100%;">
+                    <span style="font-size: 0.95rem; font-weight: 800; color: #475569; letter-spacing: 0.05em;">TOTALE USCITE COMPLESSIVE (Prestiti + Finanziamenti + Spese)</span>
+                    <span id="expenses-complessivo-total-value" style="font-size: 1.8rem; font-weight: 900; color: #b91c1c;">€ 0.00</span>
+                </div>
+
+                <div class="page-counter-box-top-ocra" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="page-counter-label">Uscite registrate in questa pagina (Spese Mensili): </span>
+                    <span id="page-uscite-total" style="font-size: 1.4rem; font-weight: 900;">€ 0.00</span>
                 </div>
                 
                 <div class="card-section border-ocra">
-                    <h3 class="section-subtitle color-ocra">REGISTRAZIONE SPESE</h3>
+                    <h3 class="section-subtitle color-ocra">REGISTRAZIONE SPESE MENSILI</h3>
                     <div class="grid-inputs">
                         <div class="input-row row-uscite-fisse" id="row-spesa-alimenti"><span class="block-label">Spese per gli alimenti</span></div>
                         <div class="input-row row-uscite-fisse" id="row-spese-personali"><span class="block-label">Spese personali</span></div>

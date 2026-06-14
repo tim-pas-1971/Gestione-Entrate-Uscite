@@ -337,13 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let totaleUsciteGenerali = 0;
         document.querySelectorAll('#page-uscite .amount-input-ocra').forEach(input => {
             totaleUsciteGenerali += parseFloat(input.value) || 0;
-            if (input.value === "") {
-                const rigaPadre = input.closest('.input-row');
-                if (rigaPadre) {
-                    const selectMese = rigaPadre.querySelector('.period-select');
-                    if (selectMese) selectMese.value = "";
-                }
-            }
         });
         const usciteTotaleEl = document.getElementById('page-uscite-total');
         if (usciteTotaleEl) usciteTotaleEl.textContent = `€ ${totaleUsciteGenerali.toFixed(2)}`;
@@ -354,6 +347,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const tutteLeUsciteDelGiorno = totaleUsciteGenerali + uscitePrestitiGiorno + uscitePersonaleGiorno;
             const bilancioGiornata = tutteLeEntrateDelGiorno - tutteLeUsciteDelGiorno;
             dailyTotalEl.textContent = `€ ${bilancioGiornata.toFixed(2)}`;
+        }
+
+        // Forza anche l'aggiornamento del super-totale storico delle uscite se siamo in pagina uscite
+        if (document.getElementById('page-uscite').style.display === 'block') {
+            calcolaSuperTotaleUsciteAnnuali();
         }
     }
 
@@ -475,7 +473,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        document.querySelectorAll('main select').forEach(s => s.value = "");
+        // SELETTORE INTELLIGENTE: Svuota i campi tranne la tendina dei mesi delle uscite e degli anni
+        document.querySelectorAll('main select').forEach(s => {
+            if (s.id !== 'revenue-year-select' && s.id !== 'expenses-year-select' && !s.closest('.row-uscite-fisse')) {
+                s.value = "";
+            }
+        });
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
 
@@ -624,6 +627,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (document.getElementById('page-riepilogo-entrate').style.display === 'block') {
                             calcolaEdEseguiGraficiEntrate();
                         }
+                        if (document.getElementById('page-uscite').style.display === 'block') {
+                            calcolaSuperTotaleUsciteAnnuali();
+                        }
                     }
                 } catch (errore) {
                     alert("Errore critico: Il file selezionato non è un formato JSON valido.");
@@ -634,7 +640,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 7. IMPLEMENTAZIONE COMPLETA DELLA PAGINA RIEPILOGO ENTRATE ANNUALI ---
     // --- 7. IMPLEMENTAZIONE COMPLETA DELLA PAGINA RIEPILOGO ENTRATE ANNUALI ---
     let istanzaGraficoBarre = null;
     let istanzaGraficoTorta = null;
@@ -653,29 +658,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const prestitiFamPerMese = new Array(12).fill(0);
         const finanziamentiPersPerMese = new Array(12).fill(0);
 
-        console.log("--- AVVIO LOG RIEPILOGO ---");
-        console.log("Elementi totali in LocalStorage:", localStorage.length);
-
         for (let i = 0; i < localStorage.length; i++) {
             const chiave = localStorage.key(i);
             
-            // Controllo flessibile: basta che contenga l'anno selezionato
             if (chiave.includes(annoSelezionato)) {
                 try {
                     const datiGiorno = JSON.parse(localStorage.getItem(chiave));
                     if (!datiGiorno) continue;
 
-                    // Estraiamo il mese dalla chiave (es. "dati_2026-06-12" -> "06" -> indice 5)
                     const partiData = chiave.split('-');
                     let meseIndice = -1;
-                    
-                    if (partiData.length >= 2) {
-                        meseIndice = parseInt(partiData[1], 10) - 1;
-                    }
+                    if (partiData.length >= 2) { meseIndice = parseInt(partiData[1], 10) - 1; }
 
                     if (meseIndice >= 0 && meseIndice <= 11) {
-                        console.log(`Trovati dati per il mese index ${meseIndice} nella chiave ${chiave}`);
-                        
                         if (datiGiorno.stipendi) {
                             Object.values(datiGiorno.stipendi).forEach(st => {
                                 entrateGenPerMese[meseIndice] += parseFloat(st.cifra) || 0;
@@ -702,9 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                         }
                     }
-                } catch(e) {
-                    console.error("Errore lettura chiave:", chiave, e);
-                }
+                } catch(e) {}
             }
         }
 
@@ -714,9 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
             totaleComplessivoAnno += sommaMese;
 
             const cardElemento = document.getElementById(`rev-card-${m}`);
-            if (cardElemento) {
-                cardElemento.textContent = `€ ${sommaMese.toFixed(2)}`;
-            }
+            if (cardElemento) { cardElemento.textContent = `€ ${sommaMese.toFixed(2)}`; }
         }
 
         const valoreTotaleAnnuoEl = document.getElementById('revenue-annual-total-value');
@@ -729,11 +720,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalePrestitiFamiliariPagina = prestitiFamPerMese.reduce((a, b) => a + b, 0);
         const totaleFinanziamentiPersonaliPagina = finanziamentiPersPerMese.reduce((a, b) => a + b, 0);
 
-        // Reset sicuro dei grafici per evitare sovrapposizioni
         if (istanzaGraficoBarre) { istanzaGraficoBarre.destroy(); istanzaGraficoBarre = null; }
         if (istanzaGraficoTorta) { istanzaGraficoTorta.destroy(); istanzaGraficoTorta = null; }
 
-        // --- STRUTTURA GRAFICO 1: ISTOGRAMMA IMPILATO ---
         const ctxBarre = document.getElementById('chart-stacked-bar-revenue');
         if (ctxBarre) {
             istanzaGraficoBarre = new Chart(ctxBarre, {
@@ -750,12 +739,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom' } },
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, max: 5000 } }
                 }
             });
         }
 
-        // --- STRUTTURA GRAFICO 2: GRAFICO A TORTA ---
         const ctxTorta = document.getElementById('chart-pie-revenue');
         if (ctxTorta) {
             istanzaGraficoTorta = new Chart(ctxTorta, {
@@ -769,6 +757,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
+        }
+    }
+
+    // --- 8. NUOVO MOTORE DI CALCOLO STRUTTURATO PER LE USCITE COMPLESSIVE ---
+    const yearSelectExpenses = document.getElementById('expenses-year-select');
+    if (yearSelectExpenses) {
+        yearSelectExpenses.addEventListener('change', calcolaSuperTotaleUsciteAnnuali);
+    }
+
+    function calcolaSuperTotaleUsciteAnnuali() {
+        const annoSelezionato = yearSelectExpenses ? yearSelectExpenses.value : "2026";
+        let superTotaleUscite = 0;
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const chiave = localStorage.key(i);
+            
+            if (chiave.includes(annoSelezionato)) {
+                try {
+                    const datiGiorno = JSON.parse(localStorage.getItem(chiave));
+                    if (!datiGiorno) continue;
+
+                    // 1. Somma uscite registrate nella pagina Uscite Mensili (Spese Fisse)
+                    if (datiGiorno.uscite) {
+                        Object.values(datiGiorno.uscite).forEach(us => {
+                            superTotaleUscite += parseFloat(us.cifra) || 0;
+                        });
+                    }
+
+                    // 2. Somma voci uscite registrate nella pagina Prestiti (Filiari/Amici)
+                    if (datiGiorno.prestiti) {
+                        datiGiorno.prestiti.forEach(p => {
+                            superTotaleUscite += parseFloat(p.uscite) || 0;
+                        });
+                    }
+
+                    // 3. Somma voci uscite registrate nei Finanziamenti Terzi
+                    if (datiGiorno.finanziamenti) {
+                        datiGiorno.finanziamenti.forEach(f => {
+                            superTotaleUscite += parseFloat(f.uscite) || 0;
+                        });
+                    }
+
+                    // 4. Somma voci uscite registrate nei Finanziamenti Personali
+                    if (datiGiorno.personale) {
+                        datiGiorno.personale.forEach(pers => {
+                            superTotaleUscite += parseFloat(pers.uscite) || 0;
+                        });
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // Aggiorna visivamente il contatore ad anello totale superiore
+        const superTotaleUsciteEl = document.getElementById('expenses-complessivo-total-value');
+        if (superTotaleUsciteEl) {
+            superTotaleUsciteEl.textContent = `€ ${superTotaleUscite.toFixed(2)}`;
         }
     }
 
@@ -789,6 +833,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (idPagina === 'page-riepilogo-entrate') {
             calcolaEdEseguiGraficiEntrate();
+        }
+        if (idPagina === 'page-uscite') {
+            calcolaSuperTotaleUsciteAnnuali();
         }
     }
 

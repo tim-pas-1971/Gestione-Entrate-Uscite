@@ -954,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('btn-export-excel').style.display = 'block';
                 
                 const formattaTesto = (sezioneCod) => {
-                    const mappa = { stipendi: "Entrate Fisse", varie: "Varie", prestiti: "Prestiti", finanziamenti: "Fin. Terzi", personale: "Fin. Personali", uscite: "Spese Fisse" };
+                    const mappa = { stipendi: "Naspi / ...", varie: "Varie", prestiti: "Prestiti", finanziamenti: "Fin. Terzi", personale: "Fin. Personali", uscite: "Spese Fisse" };
                     return mappa[sezioneCod] || sezioneCod;
                 };
 

@@ -829,6 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuPersonale = document.getElementById('menu-personale');
     const menuUsciteGenerali = document.getElementById('menu-uscite-generali');
     const menuRiepilogoEntrate = document.getElementById('menu-riepilogo-entrate');
+    const menuRicerche = document.getElementById('menu-ricerche');
     
     function cambiaPagina(idPagina, pulsanteSelezionato) {
         document.querySelectorAll('.page-body').forEach(p => p.style.display = 'none');
@@ -838,12 +839,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
         if (pulsanteSelezionato) pulsanteSelezionato.classList.add('active');
 
-        if (idPagina === 'page-riepilogo-entrate') {
-            calcolaEdEseguiGraficiEntrate();
-        }
-        if (idPagina === 'page-uscite') {
-            calcolaSuperTotaleUsciteAnnuali();
-        }
+        if (idPagina === 'page-riepilogo-entrate') { calcolaEdEseguiGraficiEntrate(); }
+        if (idPagina === 'page-uscite') { calcolaSuperTotaleUsciteAnnuali(); }
     }
 
     if (menuEntrate) menuEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-entrate', menuEntrate); });
@@ -851,6 +848,173 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuPersonale) menuPersonale.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-personale', menuPersonale); });
     if (menuUsciteGenerali) menuUsciteGenerali.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-uscite', menuUsciteGenerali); });
     if (menuRiepilogoEntrate) menuRiepilogoEntrate.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-riepilogo-entrate', menuRiepilogoEntrate); });
+    if (menuRicerche) menuRicerche.addEventListener('click', (e) => { e.preventDefault(); cambiaPagina('page-ricerche', menuRicerche); });
+
+    // --- 9. MOTORE DI RICERCA AVANZATA ED ESPORTAZIONE EXCEL ---
+    const mappingSottosezioni = {
+        stipendi: { "row-naspi-luigi": "NASPI (Luigi)", "row-naspi-tiziana": "NASPI (Tiziana)", "row-pensione-luigi": "PENSIONE (Luigi)", "row-pensione-tiziana": "PENSIONE (Tiziana)", "row-stipendio-luigi": "STIPENDIO (Luigi)", "row-stipendio-tiziana": "STIPENDIO (Tiziana)" },
+        varie: { "Gavino Spano": "Gavino Spano", "Gratta&Vinci": "Gratta&Vinci", "Subito.it": "Subito.it", "Vinted": "Vinted", "Altro": "Altro" },
+        uscite: { "row-spesa-alimenti": "Alimenti", "row-spese-personali": "Spese personali", "row-spese-ristoranti": "Ristoranti", "row-spese-salute": "Salute", "row-spese-gatti": "Gatti", "row-gestione-casa": "Gestione Casa", "row-gestione-auto": "Gestione Auto", "row-varie-imprevisti": "Varie / Imprevisti" }
+    };
+
+    const selRicercaSezione = document.getElementById('search-sezione');
+    const selRicercaSottosezione = document.getElementById('search-sottosezione');
+
+    if (selRicercaSezione && selRicercaSottosezione) {
+        selRicercaSezione.addEventListener('change', (e) => {
+            const val = e.target.value;
+            selRicercaSottosezione.innerHTML = '<option value="">Tutte</option>';
+            if (mappingSottosezioni[val]) {
+                Object.entries(mappingSottosezioni[val]).forEach(([chiave, etichetta]) => {
+                    selRicercaSottosezione.innerHTML += `<option value="${chiave}">${etichetta}</option>`;
+                });
+            } else {
+                selRicercaSottosezione.innerHTML = '<option value="">- Non applicabile -</option>';
+            }
+        });
+    }
+
+    const btnRicerca = document.getElementById('btn-esegui-ricerca');
+    const btnSvuota = document.getElementById('btn-svuota-ricerca');
+    
+    if (btnSvuota) {
+        btnSvuota.addEventListener('click', () => {
+            document.getElementById('search-tipo').value = "";
+            document.getElementById('search-sezione').value = "";
+            document.getElementById('search-sottosezione').innerHTML = '<option value="">Tutte</option>';
+            document.getElementById('search-keyword').value = "";
+            document.getElementById('search-date-start').value = "";
+            document.getElementById('search-date-end').value = "";
+            document.getElementById('search-results-container').style.display = 'none';
+        });
+    }
+
+    if (btnRicerca) {
+        btnRicerca.addEventListener('click', () => {
+            const fTipo = document.getElementById('search-tipo').value;
+            const fSezione = document.getElementById('search-sezione').value;
+            const fSotto = document.getElementById('search-sottosezione').value;
+            const fTesto = document.getElementById('search-keyword').value.toLowerCase();
+            const fDa = document.getElementById('search-date-start').value;
+            const fA = document.getElementById('search-date-end').value;
+
+            let risultati = [];
+            let totEntrate = 0;
+            let totUscite = 0;
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('dati_')) {
+                    const dataRecord = key.replace('dati_', '');
+                    
+                    if (fDa && dataRecord < fDa) continue;
+                    if (fA && dataRecord > fA) continue;
+
+                    try {
+                        const dati = JSON.parse(localStorage.getItem(key));
+
+                        const addRes = (tipo, sezione, sottoCodice, dettaglio, nota, importoStr) => {
+                            const importoNum = parseFloat(importoStr) || 0;
+                            if (importoNum > 0) {
+                                risultati.push({ data: dataRecord, tipo, sezione, sottoCodice, dettaglio, nota: nota || "", importo: importoNum });
+                            }
+                        };
+
+                        if (dati.stipendi) { Object.keys(dati.stipendi).forEach(id => { addRes('entrata', 'stipendi', id, mappingSottosezioni.stipendi[id], dati.stipendi[id].nota, dati.stipendi[id].cifra); }); }
+                        if (dati.varie) { dati.varie.forEach(v => { addRes('entrata', 'varie', v.categoria, v.categoria, v.nota, v.cifra); }); }
+                        if (dati.prestiti) { dati.prestiti.forEach(p => { addRes('uscita', 'prestiti', 'p_us', p.nome, p.nota, p.uscite); addRes('entrata', 'prestiti', 'p_en', p.nome, p.nota, p.entrate); }); }
+                        if (dati.finanziamenti) { dati.finanziamenti.forEach(f => { const desc = f.finanziaria ? `${f.nome} (${f.finanziaria})` : f.nome; addRes('uscita', 'finanziamenti', f.finanziaria, desc, f.nota, f.uscite); addRes('entrata', 'finanziamenti', f.finanziaria, desc, f.nota, f.entrate); }); }
+                        if (dati.personale) { dati.personale.forEach(p => { addRes('uscita', 'personale', p.finanziaria, p.finanziaria, p.nota, p.uscite); addRes('entrata', 'personale', p.finanziaria, p.finanziaria, p.nota, p.entrate); }); }
+                        if (dati.uscite) { Object.keys(dati.uscite).forEach(id => { addRes('uscita', 'uscite', id, mappingSottosezioni.uscite[id], "", dati.uscite[id].cifra); }); }
+
+                    } catch(e) {}
+                }
+            }
+
+            // APPLICAZIONE FILTRI INCROCIATI
+            risultati = risultati.filter(r => {
+                if (fTipo && r.tipo !== fTipo) return false;
+                if (fSezione && r.sezione !== fSezione) return false;
+                if (fSotto && r.sottoCodice !== fSotto) return false;
+                if (fTesto && !r.dettaglio.toLowerCase().includes(fTesto) && !r.nota.toLowerCase().includes(fTesto)) return false;
+                return true;
+            });
+
+            // ORDINAMENTO CRONOLOGICO
+            risultati.sort((a, b) => b.data.localeCompare(a.data));
+
+            const tbody = document.getElementById('search-results-body');
+            tbody.innerHTML = '';
+            
+            if (risultati.length === 0) {
+                document.getElementById('search-no-results').style.display = 'block';
+                document.getElementById('btn-export-excel').style.display = 'none';
+            } else {
+                document.getElementById('search-no-results').style.display = 'none';
+                document.getElementById('btn-export-excel').style.display = 'block';
+                
+                const formattaTesto = (sezioneCod) => {
+                    const mappa = { stipendi: "Entrate Fisse", varie: "Varie", prestiti: "Prestiti", finanziamenti: "Fin. Terzi", personale: "Fin. Personali", uscite: "Spese Fisse" };
+                    return mappa[sezioneCod] || sezioneCod;
+                };
+
+                risultati.forEach(r => {
+                    if (r.tipo === 'entrata') totEntrate += r.importo;
+                    if (r.tipo === 'uscita') totUscite += r.importo;
+
+                    const coloreTxt = r.tipo === 'entrata' ? '#27ae60' : '#e74c3c';
+                    const labelTipo = r.tipo === 'entrata' ? 'ENTRATA' : 'USCITA';
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #e2e8f0';
+                    tr.innerHTML = `
+                        <td style="padding: 12px 20px;">${r.data.split('-').reverse().join('/')}</td>
+                        <td style="padding: 12px 20px; font-weight: 800; color: ${coloreTxt};">${labelTipo}</td>
+                        <td style="padding: 12px 20px; font-weight: bold; color: #475569;">${formattaTesto(r.sezione)}</td>
+                        <td style="padding: 12px 20px;">${r.dettaglio}</td>
+                        <td style="padding: 12px 20px; font-style: italic; color: #64748b;">${r.nota}</td>
+                        <td style="padding: 12px 20px; text-align: right; font-weight: 900; color: #0f172a;">€ ${r.importo.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('search-tot-entrate').textContent = `€ ${totEntrate.toFixed(2)}`;
+            document.getElementById('search-tot-uscite').textContent = `€ ${totUscite.toFixed(2)}`;
+            document.getElementById('search-results-container').style.display = 'block';
+        });
+    }
+
+    // ESPORTAZIONE EXCEL (Formato CSV salvato in UTF-8 per accenti e simbolo €)
+    const btnExportExcel = document.getElementById('btn-export-excel');
+    if (btnExportExcel) {
+        btnExportExcel.addEventListener('click', () => {
+            const rows = document.querySelectorAll('#search-results-body tr');
+            if (rows.length === 0) return;
+
+            let csvContent = "\uFEFFDATA;TIPO MOVIMENTO;SEZIONE;DETTAGLIO;NOTE;IMPORTO\n";
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                const dataStr = cols[0].innerText;
+                const tipoStr = cols[1].innerText;
+                const sezStr = cols[2].innerText;
+                const detStr = cols[3].innerText.replace(/;/g, ","); 
+                const notaStr = cols[4].innerText.replace(/;/g, ",");
+                const impStr = cols[5].innerText.replace('€', '').trim().replace('.', ','); 
+                
+                csvContent += `${dataStr};${tipoStr};${sezStr};${detStr};${notaStr};${impStr}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Ricerca_Gestione_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
 
     caricaDatiData();
 });

@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dati.personale && dati.personale[indiceRiga]) {
                     const pers = dati.personale[indiceRiga];
                     if (pers.finanziaria || pers.nota || pers.dovuto || pers.uscite || pers.entrate) {
-                        if (!finanziariaTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
+                        if (!financiarieTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
                         if (!notaTrovata && pers.nota && pers.nota.trim() !== "") notaTrovata = pers.nota;
                         
                         const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
@@ -349,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
             dailyTotalEl.textContent = `€ ${bilancioGiornata.toFixed(2)}`;
         }
 
-        // Forza anche l'aggiornamento del super-totale storico delle uscite se siamo in pagina uscite
         if (document.getElementById('page-uscite').style.display === 'block') {
             calcolaSuperTotaleUsciteAnnuali();
         }
@@ -371,7 +370,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        const datiDaSalvare = { stipendi: {}, varie: [], prestiti: [], finanziamenti: [], personale: [], uscite: {} };
+        // Struttura dati base con il nuovo campo per la nota di sezione delle entrate fisse
+        const datiDaSalvare = { stipendi: {}, notaSezioneFissa: "", varie: [], prestiti: [], finanziamenti: [], personale: [], uscite: {} };
+
+        // Salva il testo libero della nuova area note
+        const campoNotaFissaTextarea = document.getElementById('note-entrate-fisse');
+        if (campoNotaFissaTextarea) {
+            datiDaSalvare.notaSezioneFissa = campoNotaFissaTextarea.value;
+        }
 
         righeFisseEntrate.forEach(id => {
             const riga = document.getElementById(id);
@@ -473,19 +479,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // SELETTORE INTELLIGENTE: Svuota i campi tranne la tendina dei mesi delle uscite e degli anni
+        // PULIZIA SELETTIVA COMPLETA: svuota gli input di testo, cifre e la nuova textarea
+        document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
+        document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
+        const campoNotaFissaTextarea = document.getElementById('note-entrate-fisse');
+        if (campoNotaFissaTextarea) campoNotaFissaTextarea.value = "";
+        
+        // Resetta i menu a tendina tranne i selettori generali dell'anno
         document.querySelectorAll('main select').forEach(s => {
-            if (s.id !== 'revenue-year-select' && s.id !== 'expenses-year-select' && !s.closest('.row-uscite-fisse')) {
+            if (s.id !== 'revenue-year-select' && s.id !== 'expenses-year-select') {
                 s.value = "";
             }
         });
-        document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
-        document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
 
         const datiSalvati = localStorage.getItem(`dati_${dataSelezionata}`);
 
         if (datiSalvati) {
             const dati = JSON.parse(datiSalvati);
+
+            // Ricarica la nuova nota di sezione se salvata
+            if (dati.notaSezioneFissa && campoNotaFissaTextarea) {
+                campoNotaFissaTextarea.value = dati.notaSezioneFissa;
+            }
 
             if (dati.stipendi) {
                 righeFisseEntrate.forEach(id => {
@@ -739,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom' } },
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, min: 0, max: 5000 } }
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
                 }
             });
         }
@@ -760,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 8. NUOVO MOTORE DI CALCOLO STRUTTURATO PER LE USCITE COMPLESSIVE ---
+    // --- 8. CONTATORE STRUTTURATO PER LE USCITE COMPLESSIVE ---
     const yearSelectExpenses = document.getElementById('expenses-year-select');
     if (yearSelectExpenses) {
         yearSelectExpenses.addEventListener('change', calcolaSuperTotaleUsciteAnnuali);
@@ -778,28 +793,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const datiGiorno = JSON.parse(localStorage.getItem(chiave));
                     if (!datiGiorno) continue;
 
-                    // 1. Somma uscite registrate nella pagina Uscite Mensili (Spese Fisse)
                     if (datiGiorno.uscite) {
                         Object.values(datiGiorno.uscite).forEach(us => {
                             superTotaleUscite += parseFloat(us.cifra) || 0;
                         });
                     }
-
-                    // 2. Somma voci uscite registrate nella pagina Prestiti (Filiari/Amici)
                     if (datiGiorno.prestiti) {
                         datiGiorno.prestiti.forEach(p => {
                             superTotaleUscite += parseFloat(p.uscite) || 0;
                         });
                     }
-
-                    // 3. Somma voci uscite registrate nei Finanziamenti Terzi
                     if (datiGiorno.finanziamenti) {
                         datiGiorno.finanziamenti.forEach(f => {
                             superTotaleUscite += parseFloat(f.uscite) || 0;
                         });
                     }
-
-                    // 4. Somma voci uscite registrate nei Finanziamenti Personali
                     if (datiGiorno.personale) {
                         datiGiorno.personale.forEach(pers => {
                             superTotaleUscite += parseFloat(pers.uscite) || 0;
@@ -809,7 +817,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Aggiorna visivamente il contatore ad anello totale superiore
         const superTotaleUsciteEl = document.getElementById('expenses-complessivo-total-value');
         if (superTotaleUsciteEl) {
             superTotaleUsciteEl.textContent = `€ ${superTotaleUscite.toFixed(2)}`;

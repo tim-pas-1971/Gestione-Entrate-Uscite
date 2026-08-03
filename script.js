@@ -171,38 +171,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. MOTORI DI RICERCA CRONOLOGICA (Estratto corretto) ---
 function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
-    let finanziariaTrovata = "";
-    let notaTrovata = "";
-    let debitoResiduo = 0;
-    let haTrovatoStoria = false;
+        let finanziariaTrovata = "";
+        let notaTrovata = "";
+        let debitoResiduo = 0;
+        let haTrovatoStoria = false;
 
-    for (let i = 1; i <= 365; i++) {
-        const dataStr = sottraiGiorni(dataTarget, i);
-        const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
+        // Scansione a ritroso nei 365 giorni precedenti
+        for (let i = 1; i <= 365; i++) {
+            const dataStr = sottraiGiorni(dataTarget, i);
+            const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
 
-        if (datiSalvati) {
-            const dati = JSON.parse(datiSalvati);
-            if (dati.personale && dati.personale[indiceRiga]) {
-                const pers = dati.personale[indiceRiga];
-                if (pers.finanziaria || pers.nota || pers.dovuto || pers.uscite || pers.entrate) {
-                    // RIGHE CORRETTE: rimpiazzato 'financiarieTrovata' con 'finanziariaTrovata'
-                    if (!finanziariaTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
-                    if (!notaTrovata && pers.nota && pers.nota.trim() !== "") notaTrovata = pers.nota;
-                    
-                    const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
-                    const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
-                    debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
-                    
-                    if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
-                    if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
-                    haTrovatoStoria = true;
-                    break;
-                }
+            if (datiSalvati) {
+                try {
+                    const dati = JSON.parse(datiSalvati);
+                    if (dati.personale && dati.personale[indiceRiga]) {
+                        const pers = dati.personale[indiceRiga];
+                        
+                        // Verifica se nel giorno passato c'erano dati registrati
+                        if (pers.finanziaria || pers.nota || pers.dovuto || pers.uscite || pers.entrate) {
+                            if (!finanziariaTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
+                            if (!notaTrovata && pers.nota && pers.nota.trim() !== "") notaTrovata = pers.nota;
+                            
+                            // Continua la catena a ritroso per ereditare correttamente il saldo di partenza
+                            const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
+                            const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
+                            
+                            // Formula specifica per i finanziamenti personali
+                            debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
+                            
+                            if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
+                            if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
+                            
+                            haTrovatoStoria = true;
+                            break; // Trovato il punto di contatto più recente, interrompe il ciclo
+                        }
+                    }
+                } catch(e) {}
             }
         }
+        return haTrovatoStoria ? { finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
     }
-    return haTrovatoStoria ? { finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
-}
 
     // --- 4. LOGICA DEI CALCOLI AUTOMATICI CON SCRITTURA REALE DELLE NOTE ---
     function ricalcolaTutto() {

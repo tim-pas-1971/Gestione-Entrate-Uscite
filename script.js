@@ -99,84 +99,67 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA ---
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA CORRETTI ---
     function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
-        let nomeTrovato = "";
-        let notaTrovata = "";
-        let debitoResiduo = 0;
-        let haTrovatoStoria = false;
-
         for (let i = 1; i <= 365; i++) {
             const dataStr = sottraiGiorni(dataTarget, i);
             const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
 
             if (datiSalvati) {
-                const dati = JSON.parse(datiSalvati);
-                if (dati.prestiti && dati.prestiti[indiceRiga]) {
-                    const p = dati.prestiti[indiceRiga];
-                    if ((p.nome && p.nome.trim() !== "") || p.nota || p.dovuto || p.uscite || p.entrate) {
-                        if (!nomeTrovato && p.nome && p.nome.trim() !== "") nomeTrovato = p.nome;
-                        if (!notaTrovata && p.nota && p.nota.trim() !== "") notaTrovata = p.nota;
-                        
-                        const saldoPrec = calcolaRimanenzaStoricaPrestiti(indiceRiga, dataStr);
-                        const dovuto = p.dovuto !== "" ? (parseFloat(p.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
-                        debitoResiduo = dovuto + (parseFloat(p.uscite) || 0) - (parseFloat(p.entrate) || 0);
-                        
-                        if (!nomeTrovato && saldoPrec) nomeTrovato = saldoPrec.nome;
-                        if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
-                        haTrovatoStoria = true;
-                        break;
+                try {
+                    const dati = JSON.parse(datiSalvati);
+                    if (dati.prestiti && dati.prestiti[indiceRiga]) {
+                        const p = dati.prestiti[indiceRiga];
+                        if ((p.nome && p.nome.trim() !== "") || p.nota || p.dovuto || p.uscite || p.entrate) {
+                            const dovuto = parseFloat(p.dovuto) || 0;
+                            const uscite = parseFloat(p.uscite) || 0;
+                            const entrate = parseFloat(p.entrate) || 0;
+                            const rimanenzaCalcolata = dovuto + uscite - entrate;
+                            
+                            return {
+                                nome: p.nome || "",
+                                nota: p.nota || "",
+                                rimanenza: rimanenzaCalcolata
+                            };
+                        }
                     }
-                }
+                } catch(e) {}
             }
         }
-        return haTrovatoStoria ? { nome: nomeTrovato, nota: notaTrovata, rimanenza: debitoResiduo } : null;
+        return null;
     }
 
     function calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataTarget) {
-        let nomeTrovato = "";
-        let finanziariaTrovata = "";
-        let notaTrovata = "";
-        let debitoResiduo = 0;
-        let haTrovatoStoria = false;
-
         for (let i = 1; i <= 365; i++) {
             const dataStr = sottraiGiorni(dataTarget, i);
             const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
 
             if (datiSalvati) {
-                const dati = JSON.parse(datiSalvati);
-                if (dati.finanziamenti && dati.finanziamenti[indiceRiga]) {
-                    const f = dati.finanziamenti[indiceRiga];
-                    if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.nota || f.dovuto || f.uscite || f.entrate) {
-                        if (!nomeTrovato && f.nome && f.nome.trim() !== "") nomeTrovato = f.nome;
-                        if (!finanziariaTrovata && f.finanziaria) finanziariaTrovata = f.finanziaria;
-                        if (!notaTrovata && f.nota && f.nota.trim() !== "") notaTrovata = f.nota;
-                        
-                        const saldoPrec = calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataStr);
-                        const dovuto = f.dovuto !== "" ? (parseFloat(f.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
-                        debitoResiduo = dovuto + (parseFloat(f.uscite) || 0) - (parseFloat(f.entrate) || 0);
-                        
-                        if (!nomeTrovato && saldoPrec) nomeTrovato = saldoPrec.nome;
-                        if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
-                        if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
-                        haTrovatoStoria = true;
-                        break;
+                try {
+                    const dati = JSON.parse(datiSalvati);
+                    if (dati.finanziamenti && dati.finanziamenti[indiceRiga]) {
+                        const f = dati.finanziamenti[indiceRiga];
+                        if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.nota || f.dovuto || f.uscite || f.entrate) {
+                            const dovuto = parseFloat(f.dovuto) || 0;
+                            const uscite = parseFloat(f.uscite) || 0;
+                            const entrate = parseFloat(f.entrate) || 0;
+                            const rimanenzaCalcolata = dovuto + uscite - entrate;
+
+                            return {
+                                nome: f.nome || "",
+                                finanziaria: f.finanziaria || "",
+                                nota: f.nota || "",
+                                rimanenza: rimanenzaCalcolata
+                            };
+                        }
                     }
-                }
+                } catch(e) {}
             }
         }
-        return haTrovatoStoria ? { nome: nomeTrovato, finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
+        return null;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA (Estratto corretto) ---
-function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
-        let finanziariaTrovata = "";
-        let notaTrovata = "";
-        let debitoResiduo = 0;
-        let haTrovatoStoria = false;
-
-        // Scansione a ritroso nei 365 giorni precedenti
+    function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         for (let i = 1; i <= 365; i++) {
             const dataStr = sottraiGiorni(dataTarget, i);
             const datiSalvati = localStorage.getItem(`dati_${dataStr}`);
@@ -186,30 +169,24 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
                     const dati = JSON.parse(datiSalvati);
                     if (dati.personale && dati.personale[indiceRiga]) {
                         const pers = dati.personale[indiceRiga];
-                        
-                        // Verifica se nel giorno passato c'erano dati registrati
                         if (pers.finanziaria || pers.nota || pers.dovuto || pers.uscite || pers.entrate) {
-                            if (!finanziariaTrovata && pers.finanziaria) finanziariaTrovata = pers.finanziaria;
-                            if (!notaTrovata && pers.nota && pers.nota.trim() !== "") notaTrovata = pers.nota;
-                            
-                            // Continua la catena a ritroso per ereditare correttamente il saldo di partenza
-                            const saldoPrec = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
-                            const dovuto = pers.dovuto !== "" ? (parseFloat(pers.dovuto) || 0) : (saldoPrec ? saldoPrec.rimanenza : 0);
-                            
-                            // Formula specifica per i finanziamenti personali
-                            debitoResiduo = dovuto - (parseFloat(pers.uscite) || 0) + (parseFloat(pers.entrate) || 0);
-                            
-                            if (!finanziariaTrovata && saldoPrec) finanziariaTrovata = saldoPrec.finanziaria;
-                            if (!notaTrovata && saldoPrec) notaTrovata = saldoPrec.nota;
-                            
-                            haTrovatoStoria = true;
-                            break; // Trovato il punto di contatto più recente, interrompe il ciclo
+                            const dovuto = parseFloat(pers.dovuto) || 0;
+                            const uscite = parseFloat(pers.uscite) || 0;
+                            const entrate = parseFloat(pers.entrate) || 0;
+                            // Formula specifica Finanziamenti Personali: Dovuto - Uscite + Entrate
+                            const rimanenzaCalcolata = dovuto - uscite + entrate;
+
+                            return {
+                                finanziaria: pers.finanziaria || "",
+                                nota: pers.nota || "",
+                                rimanenza: rimanenzaCalcolata
+                            };
                         }
                     }
                 } catch(e) {}
             }
         }
-        return haTrovatoStoria ? { finanziaria: finanziariaTrovata, nota: notaTrovata, rimanenza: debitoResiduo } : null;
+        return null;
     }
 
     // --- 4. LOGICA DEI CALCOLI AUTOMATICI CON SCRITTURA REALE DELLE NOTE ---
@@ -240,13 +217,13 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
 
             const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
             
-            if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
-                if (campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
-                if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
+            if (!haDatiSalvatiOggi && storiaPassata) {
+                if (campoNome && campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
+                if (campoNota && campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
-            let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
+            let saldoEreditato = storiaPassata ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
@@ -274,14 +251,14 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
 
             const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
             
-            if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
-                if (campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
-                if (campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
-                if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
+            if (!haDatiSalvatiOggi && storiaPassata) {
+                if (campoNome && campoNome.value.trim() === "") campoNome.value = storiaPassata.nome || "";
+                if (campoFinanziaria && campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
+                if (campoNota && campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
             }
 
             const nomeAttuale = campoNome ? campoNome.value : "";
-            let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
+            let saldoEreditato = storiaPassata ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
@@ -316,13 +293,13 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
 
             const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
             
-            if (!haDatiSalvatiOggi && storiaPassata && storiaPassata.rimanenza !== 0) {
-                if (campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
-                if (campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
+            if (!haDatiSalvatiOggi && storiaPassata) {
+                if (campoFinanziaria && campoFinanziaria.value === "") campoFinanziaria.value = storiaPassata.finanziaria || "";
+                if (campoNota && campoNota.value.trim() === "") campoNota.value = storiaPassata.nota || "";
             }
 
             const finAttuale = campoFinanziaria ? campoFinanziaria.value : "";
-            let saldoEreditato = (storiaPassata && storiaPassata.rimanenza !== 0) ? storiaPassata.rimanenza : 0;
+            let saldoEreditato = storiaPassata ? storiaPassata.rimanenza : 0;
             campoDovuto.placeholder = saldoEreditato !== 0 ? saldoEreditato.toFixed(2) : "0.00";
 
             const dovuto = campoDovuto.value !== "" ? (parseFloat(campoDovuto.value) || 0) : saldoEreditato;
@@ -380,10 +357,8 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // Struttura dati base con il nuovo campo per la nota di sezione delle entrate fisse
         const datiDaSalvare = { stipendi: {}, notaSezioneFissa: "", varie: [], prestiti: [], finanziamenti: [], personale: [], uscite: {} };
 
-        // Salva il testo libero della nuova area note
         const campoNotaFissaTextarea = document.getElementById('note-entrate-fisse');
         if (campoNotaFissaTextarea) {
             datiDaSalvare.notaSezioneFissa = campoNotaFissaTextarea.value;
@@ -412,7 +387,7 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
             let campoDovuto = riga.querySelector('.loan-dovuto').value;
             if (campoDovuto === "") {
                 const storiaPassata = calcolaRimanenzaStoricaPrestiti(index, dataSelezionata);
-                if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
+                if (storiaPassata) campoDovuto = storiaPassata.rimanenza.toString();
             }
             let testoNota = riga.querySelector('.loan-note').value;
             if (testoNota === "") {
@@ -433,7 +408,7 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
             let campoDovuto = riga.querySelector('.fin-dovuto').value;
             if (campoDovuto === "") {
                 const storiaPassata = calcolaRimanenzaStoricaFinanziamenti(index, dataSelezionata);
-                if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
+                if (storiaPassata) campoDovuto = storiaPassata.rimanenza.toString();
             }
             let testoNota = riga.querySelector('.fin-note').value;
             if (testoNota === "") {
@@ -455,7 +430,7 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
             let campoDovuto = riga.querySelector('.pers-dovuto').value;
             if (campoDovuto === "") {
                 const storiaPassata = calcolaRimanenzaStoricaPersonale(index, dataSelezionata);
-                if (storiaPassata && storiaPassata.rimanenza !== 0) campoDovuto = storiaPassata.rimanenza.toString();
+                if (storiaPassata) campoDovuto = storiaPassata.rimanenza.toString();
             }
             let testoNota = riga.querySelector('.pers-note').value;
             if (testoNota === "") {
@@ -489,13 +464,11 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         const dataSelezionata = dateInput.value;
         if (!dataSelezionata) return;
 
-        // PULIZIA SELETTIVA COMPLETA: svuota gli input di testo, cifre e la nuova textarea
         document.querySelectorAll('main input[type="text"]').forEach(i => i.value = "");
         document.querySelectorAll('main input[type="number"]').forEach(n => n.value = "");
         const campoNotaFissaTextarea = document.getElementById('note-entrate-fisse');
         if (campoNotaFissaTextarea) campoNotaFissaTextarea.value = "";
         
-        // Resetta i menu a tendina tranne i selettori generali dell'anno
         document.querySelectorAll('main select').forEach(s => {
             if (s.id !== 'revenue-year-select' && s.id !== 'expenses-year-select') {
                 s.value = "";
@@ -507,7 +480,6 @@ function calcolaRimanenzaStoricaPersonale(indiceRiga, dataTarget) {
         if (datiSalvati) {
             const dati = JSON.parse(datiSalvati);
 
-            // Ricarica la nuova nota di sezione se salvata
             if (dati.notaSezioneFissa && campoNotaFissaTextarea) {
                 campoNotaFissaTextarea.value = dati.notaSezioneFissa;
             }

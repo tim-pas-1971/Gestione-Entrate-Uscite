@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${rAnno}-${rMese}-${rGiorno}`;
     }
 
-    // --- 3. MOTORI DI RICERCA CRONOLOGICA CORRETTI ---
+    // --- 3. MOTORI DI RICERCA CRONOLOGICA DIRETTI E STABILI ---
     function calcolaRimanenzaStoricaPrestiti(indiceRiga, dataTarget) {
         for (let i = 1; i <= 365; i++) {
             const dataStr = sottraiGiorni(dataTarget, i);
@@ -110,16 +110,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dati = JSON.parse(datiSalvati);
                     if (dati.prestiti && dati.prestiti[indiceRiga]) {
                         const p = dati.prestiti[indiceRiga];
-                        if ((p.nome && p.nome.trim() !== "") || p.nota || p.dovuto || p.uscite || p.entrate) {
-                            const dovuto = parseFloat(p.dovuto) || 0;
+                        // Se c'era una riga attiva in questo giorno passato
+                        if ((p.nome && p.nome.trim() !== "") || p.dovuto !== "" || p.uscite !== "" || p.entrate !== "") {
+                            // Se il dovuto è registrato usiamo quello, altrimenti cerchiamo ancora più indietro
+                            let dovutoBase = parseFloat(p.dovuto);
+                            if (isNaN(dovutoBase)) {
+                                const storiaAncoraPrima = calcolaRimanenzaStoricaPrestiti(indiceRiga, dataStr);
+                                dovutoBase = storiaAncoraPrima ? storiaAncoraPrima.rimanenza : 0;
+                            }
                             const uscite = parseFloat(p.uscite) || 0;
                             const entrate = parseFloat(p.entrate) || 0;
-                            const rimanenzaCalcolata = dovuto + uscite - entrate;
                             
                             return {
                                 nome: p.nome || "",
                                 nota: p.nota || "",
-                                rimanenza: rimanenzaCalcolata
+                                rimanenza: dovutoBase + uscite - entrate
                             };
                         }
                     }
@@ -139,17 +144,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dati = JSON.parse(datiSalvati);
                     if (dati.finanziamenti && dati.finanziamenti[indiceRiga]) {
                         const f = dati.finanziamenti[indiceRiga];
-                        if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.nota || f.dovuto || f.uscite || f.entrate) {
-                            const dovuto = parseFloat(f.dovuto) || 0;
+                        if ((f.nome && f.nome.trim() !== "") || f.finanziaria || f.dovuto !== "" || f.uscite !== "" || f.entrate !== "") {
+                            let dovutoBase = parseFloat(f.dovuto);
+                            if (isNaN(dovutoBase)) {
+                                const storiaAncoraPrima = calcolaRimanenzaStoricaFinanziamenti(indiceRiga, dataStr);
+                                dovutoBase = storiaAncoraPrima ? storiaAncoraPrima.rimanenza : 0;
+                            }
                             const uscite = parseFloat(f.uscite) || 0;
                             const entrate = parseFloat(f.entrate) || 0;
-                            const rimanenzaCalcolata = dovuto + uscite - entrate;
 
                             return {
                                 nome: f.nome || "",
                                 finanziaria: f.finanziaria || "",
                                 nota: f.nota || "",
-                                rimanenza: rimanenzaCalcolata
+                                rimanenza: dovutoBase + uscite - entrate
                             };
                         }
                     }
@@ -169,17 +177,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dati = JSON.parse(datiSalvati);
                     if (dati.personale && dati.personale[indiceRiga]) {
                         const pers = dati.personale[indiceRiga];
-                        if (pers.finanziaria || pers.nota || pers.dovuto || pers.uscite || pers.entrate) {
-                            const dovuto = parseFloat(pers.dovuto) || 0;
+                        if (pers.finanziaria || pers.nota || pers.dovuto !== "" || pers.uscite !== "" || pers.entrate !== "") {
+                            let dovutoBase = parseFloat(pers.dovuto);
+                            if (isNaN(dovutoBase)) {
+                                const storiaAncoraPrima = calcolaRimanenzaStoricaPersonale(indiceRiga, dataStr);
+                                dovutoBase = storiaAncoraPrima ? storiaAncoraPrima.rimanenza : 0;
+                            }
                             const uscite = parseFloat(pers.uscite) || 0;
                             const entrate = parseFloat(pers.entrate) || 0;
-                            // Formula specifica Finanziamenti Personali: Dovuto - Uscite + Entrate
-                            const rimanenzaCalcolata = dovuto - uscite + entrate;
 
+                            // Per i Finanziamenti Personali: Dovuto - Uscite + Entrate
                             return {
                                 finanziaria: pers.finanziaria || "",
                                 nota: pers.nota || "",
-                                rimanenza: rimanenzaCalcolata
+                                rimanenza: dovutoBase - uscite + entrate
                             };
                         }
                     }

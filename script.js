@@ -1009,5 +1009,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- FUNZIONE DI RESET DEDICATA AI FINANZIAMENTI PERSONALI ---
+    const btnResetPersonale = document.getElementById('btn-reset-personale');
+    if (btnResetPersonale) {
+        btnResetPersonale.addEventListener('click', () => {
+            if (confirm("Sei sicura di voler azzerare lo storico dei Finanziamenti Personali?\n\nTutte le altre sezioni (Entrate, Uscite, Prestiti familiari) NON verranno toccate.")) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const chiave = localStorage.key(i);
+                    if (chiave.startsWith('dati_')) {
+                        try {
+                            const dati = JSON.parse(localStorage.getItem(chiave));
+                            if (dati && dati.personale) {
+                                delete dati.personale;
+                                localStorage.setItem(chiave, JSON.stringify(dati));
+                            }
+                        } catch(e) {}
+                    }
+                }
+                alert("Storico della sezione Finanziamenti Personali azzerato con successo! Ora puoi inserire i dati partendo da zero.");
+                caricaDatiData();
+            }
+        });
+    }
+
     caricaDatiData();
 });
